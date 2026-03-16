@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:15
+    container_name: support-db
+    restart: always
+    environment:
+      POSTGRES_USER: filber
+      POSTGRES_PASSWORD: filber
+      POSTGRES_DB: soporte-pc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: soporte-backend
+    restart: always  
+    ports:
+      - "4000:4000"
+      - "5555:5555"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  soporte-frontend:
+    build: ./frontend
+    container_name: soporte-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:4000/api
+    depends_on:
+      - backend # <--- Cambiado de 'soporte-backend' a 'backend' para que coincida
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:

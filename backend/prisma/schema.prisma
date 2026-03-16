@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- TABLAS DEL PROYECTO SUPPORTCOMPUTER ---
+
+model User {
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  password         String
+  name             String?
+  role             String   @default("CLIENT") 
+  dni              String   @unique
+  isVerified       Boolean  @default(false)
+  status           String   @default("PENDING")
+  verificationCode String?
+  createdAt        DateTime @default(now())
+  services         Service[] @relation("TechServices")
+
+  // Relaciones actualizadas
+  ticketsAsClient  Ticket[] @relation("ClientTickets")
+  ticketsAsTech    Ticket[] @relation("TechTickets")
+}
+
+model Ticket {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  status      String   @default("OPEN") 
+  priority    String   @default("NORMAL") 
+  
+  // Relaciones con Usuarios
+  clientId    Int
+  client      User     @relation("ClientTickets", fields: [clientId], references: [id])
+  techId      Int?
+  technician  User?    @relation("TechTickets", fields: [techId], references: [id])
+
+  // RELACIÓN CON SERVICIOS (Muchos a Muchos)
+  // Un ticket puede tener varios servicios y un servicio puede estar en muchos tickets
+  services    Service[] 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  name        String   // Ej: "Formateo", "Mantenimiento Preventivo"
+  price       Float
+  description String?
+techId      Int      // El ID del técnico dueño del servicio
+  technician  User     @relation("TechServices", fields: [techId], references: [id])
+  // Relación inversa para Prisma
+  tickets     Ticket[]
+}
