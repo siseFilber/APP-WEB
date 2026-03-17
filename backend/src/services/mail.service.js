@@ -1,18 +1,20 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com", // Cambiamos la variable por el host real
-    port: 465,               // Puerto fijo para Gmail seguro
+    host: "smtp.gmail.com", 
+    port: 465,
     secure: true, 
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
     },
     tls: {
-        rejectUnauthorized: false // Esto ayuda a que Render no bloquee la conexión
-    }
+        // Esto obliga a usar IPv4 y evita el error de "Network Unreachable"
+        rejectUnauthorized: false,
+        minVersion: "TLSv1.2"
+    },
+    connectionTimeout: 10000 // 10 segundos de espera máximo
 });
-
 const sendVerificationEmail = async (email, code) => {
     try {
         await transporter.sendMail({
