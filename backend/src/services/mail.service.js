@@ -1,45 +1,34 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail', // Al usar esto, Nodemailer configura host y puertos automáticamente
-    auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
-});
+// Usamos la API Key que acabas de configurar en Render
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendVerificationEmail = async (email, code) => {
     try {
-        await transporter.sendMail({
-            // Usamos MAIL_USER para que Gmail no lo marque como suplantación de identidad
-            from: `"SupportComputer 💻" <${process.env.MAIL_USER}>`,
+        const { data, error } = await resend.emails.send({
+            // Nota: Con la cuenta gratuita de Resend, el 'from' debe ser este por defecto:
+            from: 'SupportComputer <onboarding@resend.dev>',
             to: email,
-            subject: "Verifica tu cuenta - SupportComputer",
+            subject: 'Verifica tu cuenta - SupportComputer',
             html: `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #1a1a1a; border-radius: 10px; overflow: hidden; background-color: #ffffff;">
-                    <div style="background-color: #00cfeb; padding: 20px; text-align: center;">
-                        <h2 style="color: #000; margin: 0; text-transform: uppercase; font-weight: 900;">SupportComputer</h2>
+                <div style="font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #00cfeb; border-radius: 10px; background-color: #000; color: #fff;">
+                    <h2 style="color: #00cfeb; text-align: center;">FORWARD VISION</h2>
+                    <p style="text-align: center;">Tu código de seguridad de 6 dígitos es:</p>
+                    <div style="background-color: #111; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                        <h1 style="letter-spacing: 8px; color: #00cfeb; margin: 0;">${code}</h1>
                     </div>
-                    <div style="padding: 30px; color: #333;">
-                        <h2 style="color: #111;">Hola, ¡bienvenido!</h2>
-                        <p style="font-size: 16px; line-height: 1.6;">Para completar tu registro en <strong>Forward Vision</strong>, usa el siguiente código de verificación de 6 dígitos:</p>
-                        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; margin: 25px 0;">
-                            <h1 style="color: #00cfeb; font-size: 40px; margin: 0; letter-spacing: 10px; font-family: monospace;">${code}</h1>
-                        </div>
-                        <p style="font-size: 14px; color: #777;">Este código expirará pronto por seguridad. Si no solicitaste este registro, puedes ignorar este mensaje.</p>
-                    </div>
-                    <div style="background-color: #111; color: #555; padding: 15px; text-align: center; font-size: 12px;">
-                        © 2026 Forward Vision - Soporte Técnico Especializado
-                    </div>
+                    <p style="font-size: 12px; color: #555; text-align: center;">Este código es para uso exclusivo en la plataforma SupportComputer.</p>
                 </div>
             `,
         });
-        console.log(`✅ Correo de verificación enviado exitosamente a: ${email}`);
-    } catch (error) {
-        console.error("❌ Error crítico al enviar correo en Render:", error);
+
+        if (error) {
+            return console.error("❌ Error de Resend:", error);
+        }
+
+        console.log("✅ Correo enviado exitosamente vía API Resend. ID:", data.id);
+    } catch (err) {
+        console.error("❌ Fallo crítico en el servicio de API de Resend:", err);
     }
 };
 
