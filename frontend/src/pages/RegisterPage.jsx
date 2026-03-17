@@ -4,15 +4,12 @@ import { registerRequest } from '../api/auth.api';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const [role, setRole] = useState('CLIENT'); // Coincide con tu Enum de Prisma
-
-  // Estado alineado con tu registerService del Backend
+  const [role, setRole] = useState('CLIENT');
   const [formData, setFormData] = useState({
     name: '',
     dni: '',
     email: '',
     password: '',
-    codigoAprobacion: '' 
   });
 
   const handleChange = (e) => {
@@ -22,7 +19,6 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Mapeamos los datos exactamente como los espera el backend
       const dataToSend = { 
         ...formData, 
         role: role === 'tecnico' ? 'TECH' : 'CLIENT' 
@@ -31,70 +27,90 @@ const RegisterPage = () => {
       const res = await registerRequest(dataToSend);
       
       if (res.status === 200 || res.status === 201) {
-        alert("Registro exitoso. Revisa tu correo para el código de verificación.");
-        // Pasamos el email a la siguiente pantalla para facilitar la validación
         navigate('/verify-otp', { state: { email: formData.email } });
       }
     } catch (error) {
-      console.error("Error en el registro:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Error al registrar usuario. Revisa el DNI (8 dígitos).");
+      // LOGICA INTELIGENTE: Si ya existe, enviamos a verificar
+      if (error.response?.status === 409) {
+        alert("Esta cuenta ya existe. Te redirigimos para que verifiques tu código.");
+        navigate('/verify-otp', { state: { email: formData.email } });
+      } else {
+        console.error("Error en el registro:", error.response?.data || error.message);
+        alert(error.response?.data?.message || "Error al registrar. Revisa los datos.");
+      }
     }
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-      <div className="bg-[#1a1a1a] rounded-lg shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 w-full max-w-5xl border border-gray-800">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[#0a0a0a] py-10">
+      <div className="relative group w-full max-w-5xl">
+        {/* Efecto de resplandor de fondo */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
         
-        {/* COLUMNA IZQUIERDA: MENSAJE */}
-        <div className="bg-[#111] p-10 md:p-14 text-center flex flex-col justify-center items-center order-2 md:order-1 border-t border-gray-800 md:border-t-0 md:border-r">
-          <div className="mb-6">
-            <div className="w-16 h-1 bg-cyan-500 mx-auto mb-6"></div>
-            <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tighter italic">¿Ya eres parte de <br/><span className="text-cyan-500">Forward Vision?</span></h3>
-            <p className="text-gray-500 text-sm mb-10">Inicia sesión para gestionar tus equipos y servicios técnicos.</p>
-            <Link to="/login" className="inline-block border-2 border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-white font-black py-3 px-12 uppercase transition-all duration-300 shadow-xl tracking-widest text-sm">
-              Ir al Login
+        <div className="relative bg-[#121212] rounded-xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 border border-white/5">
+          
+          {/* SECCIÓN INFORMATIVA */}
+          <div className="bg-gradient-to-br from-[#111] to-[#0a0a0a] p-12 flex flex-col justify-center items-center text-center border-r border-white/5">
+            <div className="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mb-6 border border-cyan-500/20">
+              <span className="text-4xl">🚀</span>
+            </div>
+            <h3 className="text-3xl font-black text-white mb-4 tracking-tighter italic">
+              UNETE A <br/><span className="text-cyan-500">FORWARD VISION</span>
+            </h3>
+            <p className="text-gray-500 text-sm max-w-xs mb-10 leading-relaxed">
+              La plataforma de soporte técnico más avanzada para la gestión de fibra óptica.
+            </p>
+            <Link to="/login" className="group relative px-8 py-3 font-bold text-white transition-all">
+              <span className="absolute inset-0 w-full h-full transition duration-300 transform -translate-x-1 -translate-y-1 bg-cyan-500 group-hover:translate-x-0 group-hover:translate-y-0"></span>
+              <span className="absolute inset-0 w-full h-full border-2 border-white"></span>
+              <span className="relative uppercase tracking-widest text-xs">Ya tengo cuenta</span>
             </Link>
           </div>
-        </div>
 
-        {/* COLUMNA DERECHA: FORMULARIO */}
-        <div className="p-10 md:p-14 flex flex-col justify-center order-1 md:order-2 border-t-4 md:border-t-0 md:border-r-4 border-cyan-500">
-          <header className="mb-8 text-center md:text-left">
-            <h2 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">Crear <span className="text-cyan-500">Cuenta</span></h2>
-            <p className="text-gray-500 text-xs mt-2 font-bold uppercase tracking-widest">Soporte Técnico Especializado</p>
-          </header>
+          {/* FORMULARIO */}
+          <div className="p-10 md:p-14 bg-[#161616]">
+            <header className="mb-8">
+              <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Registro</h2>
+              <div className="h-1 w-12 bg-cyan-500 mt-2"></div>
+            </header>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input name="name" type="text" placeholder="Nombre Completo" onChange={handleChange} required className="w-full p-3 bg-[#111] border border-gray-700 text-white focus:border-cyan-500 outline-none transition-all" />
-              <input name="dni" type="text" placeholder="DNI (8 dígitos)" onChange={handleChange} required className="w-full p-3 bg-[#111] border border-gray-700 text-white focus:border-cyan-500 outline-none transition-all" />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-gray-500 uppercase font-bold tracking-widest ml-1">Nombre</label>
+                    <input name="name" type="text" onChange={handleChange} required className="w-full p-4 bg-[#0f0f0f] border border-white/5 text-white focus:border-cyan-500 outline-none transition-all rounded-lg text-sm" placeholder="Ej. Filber" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-gray-500 uppercase font-bold tracking-widest ml-1">DNI</label>
+                    <input name="dni" type="text" onChange={handleChange} required className="w-full p-4 bg-[#0f0f0f] border border-white/5 text-white focus:border-cyan-500 outline-none transition-all rounded-lg text-sm" placeholder="8 dígitos" />
+                  </div>
+                </div>
 
-            <input name="email" type="email" placeholder="Correo Electrónico" onChange={handleChange} required className="w-full p-3 bg-[#111] border border-gray-700 text-white focus:border-cyan-500 outline-none transition-all" />
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 uppercase font-bold tracking-widest ml-1">Email Corporativo</label>
+                  <input name="email" type="email" onChange={handleChange} required className="w-full p-4 bg-[#0f0f0f] border border-white/5 text-white focus:border-cyan-500 outline-none transition-all rounded-lg text-sm" placeholder="nombre@forward.com" />
+                </div>
 
-            {/* SELECCIÓN DE ROL */}
-            <div className="py-1">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase mb-2 tracking-widest">Tipo de Perfil</label>
-              <div className="flex gap-4">
-                <button type="button" onClick={() => setRole('cliente')} className={`flex-1 py-2 text-xs font-bold uppercase border transition-all ${role === 'cliente' ? 'bg-cyan-500 border-cyan-500 text-white shadow-lg shadow-cyan-500/20' : 'border-gray-700 text-gray-500 hover:border-gray-500'}`}>Cliente</button>
-                <button type="button" onClick={() => setRole('tecnico')} className={`flex-1 py-2 text-xs font-bold uppercase border transition-all ${role === 'tecnico' ? 'bg-cyan-500 border-cyan-500 text-white shadow-lg shadow-cyan-500/20' : 'border-gray-700 text-gray-500 hover:border-gray-500'}`}>Técnico</button>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 uppercase font-bold tracking-widest ml-1">Password</label>
+                  <input name="password" type="password" onChange={handleChange} required className="w-full p-4 bg-[#0f0f0f] border border-white/5 text-white focus:border-cyan-500 outline-none transition-all rounded-lg text-sm" placeholder="••••••••" />
+                </div>
               </div>
-            </div>
 
-            {/* CÓDIGO DE VALIDACIÓN */}
-            <div className="bg-[#151515] p-3 border border-dashed border-gray-800">
-              <label className="block text-[10px] font-bold text-cyan-500 uppercase mb-2 tracking-widest">
-                {role === 'tecnico' ? 'Código Validación Admin (Obligatorio)' : 'Código de Invitación (Si tienes)'}
-              </label>
-              <input name="codigoAprobacion" type="text" placeholder="••••••" onChange={handleChange} className="w-full p-2 bg-[#111] border border-gray-800 text-cyan-400 placeholder-gray-800 focus:border-cyan-500 outline-none transition-all font-mono text-center tracking-widest" />
-            </div>
+              <div className="pt-2">
+                <label className="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-3 block">Seleccionar Rol</label>
+                <div className="flex p-1 bg-[#0f0f0f] rounded-xl border border-white/5">
+                  <button type="button" onClick={() => setRole('cliente')} className={`flex-1 py-3 text-[10px] font-black uppercase rounded-lg transition-all ${role === 'cliente' ? 'bg-cyan-500 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}>Cliente</button>
+                  <button type="button" onClick={() => setRole('tecnico')} className={`flex-1 py-3 text-[10px] font-black uppercase rounded-lg transition-all ${role === 'tecnico' ? 'bg-cyan-500 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}>Técnico</button>
+                </div>
+              </div>
 
-            <input name="password" type="password" placeholder="Contraseña Segura" onChange={handleChange} required className="w-full p-3 bg-[#111] border border-gray-700 text-white focus:border-cyan-500 outline-none transition-all" />
-
-            <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-black py-4 uppercase transition-all shadow-xl shadow-cyan-500/10 mt-4 tracking-tighter">
-              Finalizar Registro
-            </button>
-          </form>
+              <button type="submit" className="w-full bg-white text-black font-black py-4 uppercase mt-6 hover:bg-cyan-500 hover:text-white transition-all duration-500 rounded-lg tracking-widest text-sm shadow-2xl">
+                Crear Cuenta de Soporte
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
