@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.MAIL_PASS,
     },
     tls: {
-        // Esto obliga a usar IPv4 y evita el error de "Network Unreachable"
+        
         rejectUnauthorized: false,
         minVersion: "TLSv1.2"
     },
@@ -30,9 +30,9 @@ const sendVerificationEmail = async (email, code) => {
                 </div>
             `,
         });
-        console.log(`✅ Correo enviado a ${email}`);
+        console.log(` Correo enviado a ${email}`);
     } catch (error) {
-        console.error("❌ Error al enviar correo:", error);
+        console.error(" Error al enviar correo:", error);
     }
 };
 
