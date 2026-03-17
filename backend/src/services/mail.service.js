@@ -2,15 +2,16 @@ const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587, // Puerto 587 es el más estable en Render
-    secure: false, // Debe ser false para el puerto 587
+    port: 587,
+    secure: false, 
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
     },
+   
+    family: 4, 
     tls: {
         rejectUnauthorized: false,
-        // Forzamos cifrado ciphers para evitar bloqueos de firewalls en la nube
         ciphers: 'SSLv3',
         minVersion: "TLSv1.2"
     }
