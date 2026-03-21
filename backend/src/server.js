@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // IMPORTANTE: Hostinger inyecta el puerto automáticamente en process.env.PORT
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8080;
 
 const startServer = async () => {
   try {
