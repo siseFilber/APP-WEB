@@ -121,14 +121,7 @@ const getTechUsersService = async () => {
         }
     });
 };
-const getTechUsers = async (req, res) => {
-    try {
-        const techs = await userService.getTechUsersService();
-        res.status(200).json(techs);
-    } catch (error) {
-        res.status(500).json({ message: "Error al obtener la lista de técnicos" });
-    }
-};
+
 
 // ACTUALIZA TU EXPORTACIÓN AL FINAL DEL SERVICE:
 module.exports = { 
@@ -140,6 +133,5 @@ module.exports = {
     getUserByIdService,
     changeRoleService,
     deleteUserService,
-    getTechUsersService,
-    getTechUsers
+    getTechUsersService
 };

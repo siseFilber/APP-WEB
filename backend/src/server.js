@@ -11,9 +11,10 @@ const startServer = async () => {
   await connectDB();
 
   // 2. Iniciar Express
-  app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-  });
+// En tu server.js
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor de SupportComputer corriendo en el puerto ${PORT}`);
+});
 };
 
 startServer();

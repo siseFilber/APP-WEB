@@ -7,7 +7,15 @@ const ticketRoutes = require('./routes/ticket.routes');   // <-- Importar rutas 
 const app = express();
 
 // Middlewares
-app.use(cors());
+// En tu app.js
+const cors = require('cors');
+
+// ... después del const app = express();
+app.use(cors({
+  origin: '*', // Permite peticiones desde cualquier lugar por ahora
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Ruta de prueba
