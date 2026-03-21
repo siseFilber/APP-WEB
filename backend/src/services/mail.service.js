@@ -1,13 +1,13 @@
 const { Resend } = require('resend');
 
-// Usamos la API Key que acabas de configurar en Render
+// Usamos la API Key configurada en Hostinger
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendVerificationEmail = async (email, code) => {
     try {
         const { data, error } = await resend.emails.send({
-            // Nota: Con la cuenta gratuita de Resend, el 'from' debe ser este por defecto:
-            from: 'SupportComputer <onboarding@resend.dev>',
+            // CAMBIO CRÍTICO: Ahora usamos tu dominio verificado
+            from: 'SupportComputer <no-reply@filberdev.cloud>', 
             to: email,
             subject: 'Verifica tu cuenta - SupportComputer',
             html: `
