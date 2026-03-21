@@ -10,9 +10,13 @@ const app = express();
 // (Borramos la línea repetida de const cors que estaba aquí)
 
 app.use(cors({
-  origin: '*', 
+  origin: [
+    'https://filberdev.cloud',      // Si el front está en la raíz
+    'https://tienda.filberdev.cloud',  // Si usas subdominio
+    'http://localhost:5173'         // Para seguir probando en tu PC
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  credentials: true
 }));
 
 app.use(express.json());
