@@ -9,14 +9,16 @@ const app = express();
 // Middlewares
 // (Borramos la línea repetida de const cors que estaba aquí)
 
+// En src/app.js de tu Backend
 app.use(cors({
   origin: [
-    'https://filberdev.cloud',      // Si el front está en la raíz
-    'https://tienda.filberdev.cloud',  // Si usas subdominio
-    'http://localhost:5173'         // Para seguir probando en tu PC
+    'https://shop.filberdev.cloud', // <-- ESTE ES EL QUE FALTA
+    'https://filberdev.cloud', 
+    'http://localhost:5173'         // Para tus pruebas locales
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
