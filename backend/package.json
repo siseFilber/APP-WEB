@@ -1,10 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "src/start.js",
+  "main": "src/migrate.js",
   "scripts": {
-    "start": "node src/start.js",
-    "dev": "nodemon src/start.js",
+    "start": "node src/migrate.js",
+    "dev": "nodemon src/migrate.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
