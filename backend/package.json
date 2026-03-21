@@ -1,11 +1,11 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "src/migrate.js",
+  "main": "src/start.js",
   "scripts": {
-    "start": "node src/migrate.js",
-    "dev": "nodemon src/migrate.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/start.js",
+    "dev": "nodemon src/start.js",
+    "postinstall": "npx prisma generate && npx prisma db push"
   },
   "keywords": [],
   "author": "Filber",
