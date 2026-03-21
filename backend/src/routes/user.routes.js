@@ -17,7 +17,7 @@ router.put('/profile', validateToken, userController.updateProfile); // Editar m
 
 // --- RUTAS DE ADMINISTRACIÓN (Solo ADMIN) ---
 // 1. Listar todos
-router.get('/', validateToken, checkRole(['ADMIN']), userController.getAllUsers);
+router.get('/',  userController.getAllUsers);
 router.get('/tecnicos', userController.getTechUsers);
 // 2. Detalle de un usuario específico
 router.get('/:id', validateToken, checkRole(['ADMIN']), userController.getUserDetail);
