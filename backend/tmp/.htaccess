@@ -1,0 +1,7 @@
+PassengerAppRoot /home/u882418259/domains/filberdev.cloud/nodejs/backend
+PassengerAppType node
+PassengerNodejs /opt/alt/alt-nodejs20/root/bin/node
+PassengerStartupFile src/server.js
+PassengerBaseURI /
+PassengerRestartDir /home/u882418259/domains/filberdev.cloud/nodejs/backend/tmp
+SetEnv LSNODE_CONSOLE_LOG console.log
