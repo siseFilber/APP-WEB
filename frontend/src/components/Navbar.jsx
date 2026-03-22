@@ -21,24 +21,39 @@ const Navbar = () => {
           SUPPORT<span className="text-cyan-500">COMPUTER</span>
         </Link>
 
-        {/* Links Dinámicos */}
-        <div className="hidden md:flex space-x-8 text-sm font-bold uppercase tracking-widest italic">
-          <Link to="/" className="hover:text-cyan-500 transition">Inicio</Link>
-          
-          {/* Si el usuario es CLIENTE, mostramos técnicos */}
-          {user?.role === 'CLIENT' && (
-            <Link to="/tecnicos" className="text-cyan-500 hover:text-white transition underline decoration-2 underline-offset-4">Ver Técnicos</Link>
-          )}
+       {/* Links Dinámicos */}
+<div className="hidden md:flex space-x-8 text-sm font-bold uppercase tracking-widest italic">
+  <Link to="/" className="hover:text-cyan-500 transition">Inicio</Link>
+  
+  {/* 1. LÓGICA PARA CLIENTE: Primero ve Servicios */}
+  {user?.role === 'CLIENT' && (
+    <>
+      <Link to="/servicios" className="text-cyan-500 hover:text-white transition underline decoration-2 underline-offset-4">Servicios</Link>
+      <Link to="/mis-tickets" className="hover:text-cyan-500 transition">Soporte</Link>
+    </>
+  )}
 
-          {/* Si el usuario es TÉCNICO, mostramos sus servicios */}
-          {user?.role === 'TECH' && (
-            <Link to="/mis-servicios" className="text-cyan-500 hover:text-white transition underline decoration-2 underline-offset-4">Mis Servicios</Link>
-          )}
+  {/* 2. LÓGICA PARA TÉCNICO: Panel de gestión de trabajos */}
+  {user?.role === 'TECH' && (
+    <>
+      <Link to="/mis-servicios" className="text-cyan-500 hover:text-white transition underline decoration-2 underline-offset-4">Panel Técnico</Link>
+      <Link to="/tickets-asignados" className="hover:text-cyan-500 transition">Tickets</Link>
+    </>
+  )}
 
-          <Link to="/nosotros" className="hover:text-cyan-500 transition">Nosotros</Link>
-          <Link to="/contacto" className="hover:text-cyan-500 transition">Contacto</Link>
-          <Link to="/tecnicos" className="hover:text-cyan-500 transition">Tecnicos</Link>
-        </div>
+  {/* 3. LÓGICA PARA ADMIN: Control total */}
+  {user?.role === 'ADMIN' && (
+    <>
+      <Link to="/admin/dashboard" className="text-red-500 hover:text-white transition underline decoration-2 underline-offset-4">Panel Admin</Link>
+      <Link to="/tecnicos" className="hover:text-cyan-500 transition">Gestionar Técnicos</Link>
+      <Link to="/usuarios" className="hover:text-cyan-500 transition">Usuarios</Link>
+    </>
+  )}
+
+  {/* Links comunes para todos o usuarios no logueados */}
+  <Link to="/nosotros" className="hover:text-cyan-500 transition">Nosotros</Link>
+  <Link to="/contacto" className="hover:text-cyan-500 transition">Contacto</Link>
+</div>
 
         {/* Botón Login / Logout */}
         <div className="flex items-center gap-4">

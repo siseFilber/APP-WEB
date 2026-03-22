@@ -121,6 +121,32 @@ const getTechUsersService = async () => {
         }
     });
 };
+// Obtener un técnico específico con todos sus servicios incluidos
+const getTechProfileWithServices = async (id) => {
+    return await prisma.user.findUnique({
+        where: { 
+            id: Number(id),
+            role: "TECH" 
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            // Aquí hacemos el "JOIN" con la tabla de servicios
+            services: true 
+        }
+    });
+};
+
+// Obtener solo la lista de servicios de un usuario específico
+const getServicesByUserId = async (userId) => {
+    return await prisma.service.findMany({
+        where: {
+            userId: Number(userId)
+        }
+    });
+};
 
 
 // ACTUALIZA TU EXPORTACIÓN AL FINAL DEL SERVICE:
@@ -133,5 +159,7 @@ module.exports = {
     getUserByIdService,
     changeRoleService,
     deleteUserService,
-    getTechUsersService
+    getTechUsersService,
+    getTechProfileWithServices, // <-- Nueva
+    getServicesByUserId         // <-- Nueva
 };

@@ -5,31 +5,30 @@ const { validateToken } = require('../middlewares/auth.middleware');
 const { validateRegister } = require('../validators/auth.validator');
 const { checkRole } = require('../middlewares/role.middleware');
 
-// --- RUTAS PÚBLICAS (Sin Token) ---
+// --- RUTAS PÚBLICAS (Autenticación) ---
 router.post('/register', validateRegister, userController.registerUser);
 router.post('/resend-otp', userController.resendOTP);
 router.post('/verify-otp', userController.verifyOTP);
 router.post('/login', userController.login);
 
-// --- RUTAS PRIVADAS (Cualquier usuario logueado) ---
+// --- RUTAS PÚBLICAS (Visualización de Staff para Clientes) ---
+// Estas no llevan token para que cualquier visitante vea a los técnicos
+router.get('/tecnicos', userController.getTechUsers);
+router.get('/tecnicos/:id', userController.getTechProfile); // Perfil completo con servicios
+router.get('/:id/services', userController.getUserServices); // Solo la lista de servicios
+
+// --- RUTAS PRIVADAS (Perfil del usuario logueado) ---
 router.get('/profile', validateToken, userController.getProfile);
-router.put('/profile', validateToken, userController.updateProfile); // Editar mis datos
+router.put('/profile', validateToken, userController.updateProfile);
 
 // --- RUTAS DE ADMINISTRACIÓN (Solo ADMIN) ---
-// 1. Listar todos
-router.get('/',  userController.getAllUsers);
-router.get('/tecnicos', userController.getTechUsers);
-// 2. Detalle de un usuario específico
+// Usamos validateToken y checkRole para asegurar que nadie más entre
+router.get('/', validateToken, checkRole(['ADMIN']), userController.getAllUsers);
+
+// Detalle, Status, Rol y Delete
 router.get('/:id', validateToken, checkRole(['ADMIN']), userController.getUserDetail);
-
-// 3. Cambiar estado (Aprobar/Banear)
 router.patch('/:id/status', validateToken, checkRole(['ADMIN']), userController.updateStatus);
-
-// 4. Cambiar Rol (CLIENT -> TECH)
 router.patch('/:id/role', validateToken, checkRole(['ADMIN']), userController.changeRole);
-
-// 5. Eliminar usuario
 router.delete('/:id', validateToken, checkRole(['ADMIN']), userController.deleteUser);
 
-router.get('/tecnicos', userController.getTechUsers);
 module.exports = router;

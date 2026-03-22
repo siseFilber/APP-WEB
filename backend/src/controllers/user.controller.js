@@ -172,8 +172,41 @@ const getTechUsers = async (req, res) => {
         res.status(500).json({ message: "Error al obtener la lista de técnicos" });
     }
 };
+// Obtener servicios de un técnico específico
+const getUserServices = async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Usamos la función del service que creamos antes
+        const services = await userService.getServicesByUserId(id);
+        
+        if (!services) {
+            return res.status(404).json({ message: "No se encontraron servicios para este usuario" });
+        }
+        
+        res.json(services);
+    } catch (error) {
+        console.error("Error en getUserServices:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
-// ACTUALIZA TU EXPORTACIÓN AL FINAL DEL CONTROLLER:
+// Obtener perfil completo del técnico (incluyendo servicios) en una sola petición
+const getTechProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const techProfile = await userService.getTechProfileWithServices(id);
+        
+        if (!techProfile) {
+            return res.status(404).json({ error: "Técnico no encontrado" });
+        }
+        
+        res.json(techProfile);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 module.exports = { 
     getUsers, 
     registerUser, 
@@ -187,6 +220,7 @@ module.exports = {
     getUserDetail,
     changeRole,
     deleteUser,
-    getTechUsers
-   
+    getTechUsers,
+    getUserServices, // <-- Agregado
+    getTechProfile   // <-- Agregado
 };
