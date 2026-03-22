@@ -7,11 +7,10 @@ const createTicketService = async (data) => {
             title: data.title,
             description: data.description,
             priority: data.priority || "NORMAL",
-            clientId: data.clientId
+            clientId: Number(data.clientId) // Aseguramos que sea Integer para MySQL
         }
     });
 };
-
 // 2. Obtener tickets de un cliente específico
 const getTicketsByClient = async (clientId) => {
     return await prisma.ticket.findMany({

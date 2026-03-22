@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAllServicesRequest } from '../api/services';
+import { getAllServicesRequest } from '../api/service.api';
 import { Link } from 'react-router-dom';
 
 const Home = () => {

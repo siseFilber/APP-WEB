@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getTicketsRequest, assignTechRequest } from '../api/tickets';
+import { getTicketsRequest, assignTechRequest } from '../api/ticket.api';
 
 const PanelTecnico = () => {
   const [tickets, setTickets] = useState([]);

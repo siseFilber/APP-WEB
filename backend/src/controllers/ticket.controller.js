@@ -1,14 +1,19 @@
 const ticketService = require('../services/ticket.service');
 
 const createTicket = async (req, res) => {
-    try {
-        // Inyectamos el ID del cliente desde el token
-        const data = { ...req.body, clientId: req.user.id };
-        const newTicket = await ticketService.createTicketService(data);
-        res.status(201).json(newTicket);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
+  try {
+    // IMPORTANTE: El clientId viene del TOKEN (req.user.id)
+    const ticketData = {
+      ...req.body,
+      clientId: req.user.id 
+    };
+    
+    const newTicket = await ticketService.createTicketService(ticketData);
+    res.status(201).json(newTicket);
+  } catch (error) {
+    // Si falta el title aquí, verás el error 400
+    res.status(400).json({ error: error.message });
+  }
 };
 
 const getMyTickets = async (req, res) => {
