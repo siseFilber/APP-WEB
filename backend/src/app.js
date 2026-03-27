@@ -11,16 +11,10 @@ const app = express();
 
 // En src/app.js de tu Backend
 app.use(cors({
-  origin: [
-    'https://shop.filberdev.cloud', // <-- ESTE ES EL QUE FALTA
-    'https://filberdev.cloud', 
-    'http://localhost:5173'         // Para tus pruebas locales
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: '*', 
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true
 }));
-
 app.use(express.json());
 
 // Ruta de prueba
