@@ -13,7 +13,7 @@ router.get('/', validateToken, checkRole(['ADMIN', 'TECH']), ticketController.ge
 router.get('/:id', validateToken, checkRole(['ADMIN', 'TECH']), ticketController.getTicketDetail);
 
 // --- RUTAS DE ADMINISTRADOR ---
-router.patch('/:id/assign', validateToken, checkRole(['ADMIN']), ticketController.assignTechnician);
+router.patch('/:id/assign', validateToken, checkRole(['ADMIN','TECH']), ticketController.assignTechnician);
 
 // --- RUTAS DE TÉCNICO ---
 router.patch('/:id/status', validateToken, checkRole(['TECH', 'ADMIN']), ticketController.updateTicketStatus);
