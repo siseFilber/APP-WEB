@@ -8,14 +8,22 @@ const Tecnicos = () => {
   const [loading, setLoading] = useState(true);
   const [loadingServices, setLoadingServices] = useState(false);
 
-  // 1. Cargar lista de técnicos al montar el componente
+  const paletaColores = [
+    { bg: 'bg-[#F2E8CF]', text: 'text-[#333]' }, // Crema
+    { bg: 'bg-[#A8D0E6]', text: 'text-[#0D3B66]' }, // Azul pálido
+    { bg: 'bg-[#376996]', text: 'text-white' }, // Azul oscuro
+    { bg: 'bg-[#C2A385]', text: 'text-[#333]' }, // Beige suave
+    { bg: 'bg-[#E76F51]', text: 'text-white' }, // Terracota
+    { bg: 'bg-[#A7D7C5]', text: 'text-[#0D3B66]' }, // Verde menta
+  ];
+
   useEffect(() => {
     const fetchTecnicos = async () => {
       try {
         const res = await getTechUsersRequest();
         setTecnicos(res.data);
       } catch (error) {
-        console.error("Error en SupportComputer:", error);
+        console.error("Error en DAY Tech Staff:", error);
       } finally {
         setLoading(false);
       }
@@ -23,156 +31,169 @@ const Tecnicos = () => {
     fetchTecnicos();
   }, []);
 
-  // 2. Cargar servicios específicos cuando se selecciona un técnico
-  const handleTechClick = async (tech) => {
-    setSelectedTech(tech);
+  const handleTechClick = async (tech, colorPair) => {
+    setSelectedTech({ ...tech, colorPair });
     setLoadingServices(true);
-    setServicios([]); // Limpiar lista anterior
+    setServicios([]);
     try {
       const res = await getUserServicesRequest(tech.id);
       setServicios(res.data);
     } catch (error) {
-      console.error("Error al obtener servicios:", error);
+      console.error("Error al obtener servicios técnicos:", error);
     } finally {
       setLoadingServices(false);
     }
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-      <div className="text-cyan-500 font-black italic uppercase animate-pulse tracking-tighter">
-        Sincronizando Staff de Forward Vision...
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-6">
+      <div className="relative">
+        <div className="w-16 h-16 border-4 border-slate-100 rounded-full"></div>
+        <div className="w-16 h-16 border-4 border-[#376996] border-t-transparent rounded-full animate-spin absolute top-0"></div>
       </div>
+      <p className="text-[#376996] font-black uppercase tracking-[0.3em] text-[10px] animate-pulse">Sincronizando Laboratorio...</p>
     </div>
   );
 
   return (
-    <div className="bg-[#0a0a0a] min-h-screen text-white p-8">
-      <div className="container mx-auto max-w-7xl">
+    <div className="bg-white min-h-screen text-[#333] font-sans">
+      <div className="container mx-auto max-w-7xl px-6 py-16">
         
-        {/* Header Estilo Industrial */}
-        <header className="mb-16 border-l-4 border-cyan-500 pl-6">
-          <h1 className="text-6xl font-black italic uppercase tracking-tighter leading-none">
-            Nuestro <span className="text-cyan-500 text-shadow-neon">Staff</span>
+        {/* Header Especializado */}
+        <header className="mb-20 text-center border-b border-slate-100 pb-12">
+          <span className="text-[#C2A385] font-black uppercase tracking-[0.4em] text-[10px] mb-3 block italic">Staff de Laboratorio</span>
+          <h1 className="text-6xl md:text-7xl font-light text-[#333] tracking-tighter leading-none mb-6">
+            Nuestros <span className="font-extrabold text-[#376996]">Técnicos</span>
           </h1>
-          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-3">
-            Técnicos Certificados | SupportComputer
+          <p className="text-slate-500 text-sm max-w-2xl mx-auto font-medium">
+            Expertos certificados en micro-soldadura, diagnóstico de hardware y optimización de alto rendimiento para tu computadora.
           </p>
         </header>
 
-        {/* Rejilla de Técnicos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Rejilla de Perfiles */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {tecnicos.length > 0 ? (
-            tecnicos.map((t) => (
-              <div 
-                key={t.id} 
-                onClick={() => handleTechClick(t)}
-                className="group relative bg-[#111] border border-gray-900 p-8 cursor-pointer hover:border-cyan-500 transition-all duration-500 overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-                  <span className="text-cyan-500 font-black italic text-4xl italic">0{t.id}</span>
+            tecnicos.map((t, index) => {
+              const colorPair = paletaColores[index % paletaColores.length];
+              return (
+                <div 
+                  key={t.id} 
+                  onClick={() => handleTechClick(t, colorPair)}
+                  className={`group relative ${colorPair.bg} rounded-[2.5rem] p-8 cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 overflow-hidden border border-slate-100`}
+                >
+                  <div className="relative z-10 flex flex-col items-center text-center h-full">
+                    <div className="w-24 h-24 mb-6 relative group-hover:scale-110 transition-transform duration-500">
+                      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full fill-white/80 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <path d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C87.1,14.6,81.6,29.1,73.1,41.5C64.6,53.8,53.2,63.9,40.1,71.3C27.1,78.8,13.5,83.6,-0.1,83.8C-13.8,84,-27.6,79.6,-39.8,72.1C-52,64.6,-62.7,54.1,-71.2,41.7C-79.7,29.3,-86.1,14.6,-86.3,-0.1C-86.4,-14.9,-80.4,-29.8,-71.7,-42.1C-63,-54.5,-51.7,-64.3,-38.7,-72.1C-25.7,-79.9,-12.9,-85.7,0.8,-87.1C14.6,-88.5,29.2,-85.5,44.7,-76.4Z" transform="translate(100 100)" />
+                      </svg>
+                      <div className={`absolute inset-0 flex items-center justify-center text-5xl font-black ${colorPair.text}`}>
+                        {t.name[0]}
+                      </div>
+                    </div>
+                    
+                    <h3 className={`text-2xl font-black ${colorPair.text} tracking-tight mb-2 group-hover:text-[#376996]`}>
+                      {t.name}
+                    </h3>
+                    <p className={`${colorPair.text} opacity-70 text-[11px] font-bold uppercase tracking-widest mb-10 italic`}>
+                      Especialista Hardware
+                    </p>
+                    
+                    <div className="flex items-center gap-2 mt-auto">
+                      <div className={`flex-grow h-px ${colorPair.text} opacity-10 group-hover:opacity-30`}></div>
+                      <span className={`${colorPair.text} text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0`}>
+                        Ver Experiencia ▹
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="w-20 h-20 bg-gray-800 rounded-sm flex items-center justify-center text-4xl font-black text-cyan-500 mb-6 group-hover:bg-cyan-500 group-hover:text-black transition-colors">
-                  {t.name[0]}
-                </div>
-                
-                <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-1 group-hover:text-cyan-400">
-                  {t.name}
-                </h3>
-                <p className="text-cyan-600 text-[10px] font-black uppercase tracking-widest mb-6">
-                  Especialista de Redes
-                </p>
-                
-                <div className="pt-6 border-t border-gray-800">
-                  <span className="text-xs font-bold text-gray-500 uppercase group-hover:text-white transition-colors">
-                    Ver Perfil Completo ▹
-                  </span>
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
-            <div className="col-span-full py-24 text-center border border-dashed border-gray-800">
-              <p className="text-gray-600 uppercase italic tracking-widest">No hay técnicos disponibles en este momento.</p>
+            <div className="col-span-full py-32 text-center bg-gray-50 rounded-[3rem] border border-dashed border-gray-200">
+              <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px]">No hay técnicos disponibles en este turno</p>
             </div>
           )}
         </div>
 
-        {/* --- MODAL DETALLE DINÁMICO --- */}
+        {/* --- MODAL DETALLE TÉCNICO --- */}
         {selectedTech && (
-          <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-50">
-            <div className="bg-[#0a0a0a] border border-cyan-500/30 w-full max-w-4xl p-10 relative shadow-[0_0_80px_rgba(6,182,212,0.15)] animate-in fade-in zoom-in duration-300">
-              
-              <button 
-                onClick={() => setSelectedTech(null)}
-                className="absolute top-6 right-6 text-gray-600 hover:text-white font-black text-xs transition-colors"
-              >
-                [ CERRAR / ESC ]
-              </button>
-
-              <div className="grid md:grid-cols-3 gap-12">
-                <div className="md:col-span-2">
-                  <div className="mb-8">
-                    <span className="text-cyan-500 text-[10px] font-black tracking-[0.4em] uppercase mb-2 block italic">Forward Vision Certified</span>
-                    <h2 className="text-6xl font-black italic uppercase text-white leading-none tracking-tighter">
-                      {selectedTech.name}
-                    </h2>
-                  </div>
-                  
-                  <div className="space-y-6">
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-md flex items-center justify-center p-6 z-50 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[3rem] w-full max-w-5xl overflow-hidden shadow-2xl animate-in slide-in-from-bottom-8 duration-500 border border-gray-100">
+              <div className="grid md:grid-cols-12 h-full">
+                
+                <div className="md:col-span-8 p-12 md:p-16">
+                  <div className="flex justify-between items-start mb-16 pb-8 border-b border-gray-100">
                     <div>
-                      <h4 className="text-xs font-black uppercase text-gray-500 mb-4 tracking-widest border-b border-gray-900 pb-2 italic">
-                        Servicios y Especialidades
-                      </h4>
-                      
-                      {loadingServices ? (
-                        <div className="flex items-center gap-2 text-cyan-500 text-xs animate-pulse font-bold uppercase italic">
-                          <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                          Consultando Catálogo...
-                        </div>
-                      ) : servicios.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4">
-                          {servicios.map((s) => (
-                            <div key={s.id} className="flex items-start gap-4 group/item">
-                              <span className="text-cyan-500 font-black mt-1 text-lg">›</span>
-                              <div>
-                                <p className="text-sm font-black uppercase text-gray-200 group-hover/item:text-cyan-400 transition-colors tracking-tight">
-                                  {s.name}
-                                </p>
-                                <p className="text-[11px] text-gray-500 leading-snug font-medium max-w-md italic">
-                                  {s.description || "Sin descripción detallada disponible."}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-700 text-xs italic font-bold uppercase">
-                          No hay servicios registrados para este perfil.
-                        </p>
-                      )}
+                      <span className="text-[#376996] text-[10px] font-black tracking-[0.4em] uppercase mb-2 block italic">Especialista en Sistemas</span>
+                      <h2 className="text-6xl md:text-7xl font-light text-[#333] tracking-tighter leading-none mb-4">
+                        <span className="font-extrabold">{selectedTech.name.split(' ')[0]}</span> {selectedTech.name.split(' ').slice(1).join(' ')}
+                      </h2>
                     </div>
+                    <button 
+                      onClick={() => setSelectedTech(null)}
+                      className="w-12 h-12 flex items-center justify-center bg-gray-50 text-gray-400 hover:bg-rose-500 hover:text-white rounded-full transition-all duration-300 text-3xl font-light"
+                    >
+                      &times;
+                    </button>
+                  </div>
+
+                  <div>
+                    <h4 className="text-xs font-black uppercase text-[#C2A385] mb-8 tracking-[0.2em] flex items-center gap-4">
+                      Capacidades Técnicas
+                      <div className="flex-grow h-px bg-gray-100"></div>
+                    </h4>
+                    
+                    {loadingServices ? (
+                      <div className="flex flex-col gap-4">
+                        <div className="h-16 bg-gray-50 animate-pulse rounded-2xl"></div>
+                        <div className="h-16 bg-gray-50 animate-pulse rounded-2xl"></div>
+                      </div>
+                    ) : servicios.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {servicios.map((s) => (
+                          <div key={s.id} className="p-6 bg-gray-50 rounded-3xl border border-gray-100 group/item hover:bg-white hover:border-[#A8D0E6] hover:shadow-lg transition-all duration-300">
+                            <p className="text-sm font-black text-[#333] uppercase tracking-tight mb-2 group-hover/item:text-[#376996]">
+                              {s.name}
+                            </p>
+                            <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
+                              {s.description || "Mantenimiento integral y reparación a nivel componente."}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-400 font-bold italic uppercase text-[10px]">Sin servicios específicos asignados.</p>
+                    )}
                   </div>
                 </div>
 
-                {/* Sidebar del Modal */}
-                <div className="bg-[#111] p-8 border border-gray-900 flex flex-col justify-between h-full">
-                  <div>
-                    <div className="mb-6">
-                      <p className="text-[9px] text-gray-600 uppercase font-black tracking-widest mb-1">Email</p>
-                      <p className="text-xs font-mono text-cyan-500 break-words font-bold">{selectedTech.email}</p>
+                <div className={`${selectedTech.colorPair.bg} p-12 md:p-16 flex flex-col justify-between ${selectedTech.colorPair.text}`}>
+                  <div className="space-y-12">
+                    <div className="w-28 h-28 relative mx-auto md:mx-0">
+                       <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full fill-white/90">
+                        <path d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C87.1,14.6,81.6,29.1,73.1,41.5C64.6,53.8,53.2,63.9,40.1,71.3C27.1,78.8,13.5,83.6,-0.1,83.8C-13.8,84,-27.6,79.6,-39.8,72.1C-52,64.6,-62.7,54.1,-71.2,41.7C-79.7,29.3,-86.1,14.6,-86.3,-0.1C-86.4,-14.9,-80.4,-29.8,-71.7,-42.1C-63,-54.5,-51.7,-64.3,-38.7,-72.1C-25.7,-79.9,-12.9,-85.7,0.8,-87.1C14.6,-88.5,29.2,-85.5,44.7,-76.4Z" transform="translate(100 100)" />
+                      </svg>
+                      <div className={`absolute inset-0 flex items-center justify-center text-6xl font-black ${selectedTech.colorPair.text}`}>
+                        {selectedTech.name[0]}
+                      </div>
                     </div>
+                    
                     <div>
-                      <p className="text-[9px] text-gray-600 uppercase font-black tracking-widest mb-1">Status</p>
-                      <p className="text-[10px] text-green-500 font-black flex items-center gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> 
-                        ACTIVO / ONLINE
-                      </p>
+                      <p className="text-[9px] opacity-70 uppercase font-black tracking-widest mb-3">Enlace Directo</p>
+                      <p className="text-sm font-bold border-b border-current pb-4 break-all">{selectedTech.email}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[9px] opacity-70 uppercase font-black tracking-widest mb-3">Disponibilidad</p>
+                      <div className="bg-white/90 px-4 py-3 rounded-2xl inline-flex items-center gap-3">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_#22c55e]"></span>
+                        <span className="text-[9px] text-green-700 font-black uppercase tracking-widest">En Laboratorio</span>
+                      </div>
                     </div>
                   </div>
                   
-                  <button className="w-full bg-cyan-500 text-black font-black uppercase text-[10px] py-4 tracking-widest hover:bg-white transition-all shadow-[0_10px_30px_rgba(6,182,212,0.2)] transform hover:-translate-y-1 italic mt-8">
-                    Solicitar Soporte
+                  <button className={`w-full bg-white ${selectedTech.colorPair.text} font-black uppercase text-[10px] py-5 rounded-full tracking-[0.2em] hover:bg-[#333] hover:text-white transition-all duration-500 shadow-xl active:scale-95 italic`}>
+                    Agendar Diagnóstico
                   </button>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginRequest } from '../api/auth.api'; // Tu archivo de API
+import { loginRequest } from '../api/auth.api';
+import logo from '../assets/logo.svg';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -12,93 +13,93 @@ const LoginPage = () => {
     try {
       const res = await loginRequest({ email, password });
       
-      // 1. Guardamos el token en localStorage para futuras peticiones
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
 
-      alert(`Bienvenido, ${res.data.user.name}`);
-
-      // 2. Lógica de redirección basada en el ROL
       if (res.data.user.role === 'CLIENT') {
-        navigate('/tecnicos'); // <--- A la lista de técnicos
+        navigate('/tecnicos');
       } else {
-        navigate('/dashboard'); // <--- Panel de control para TECH o ADMIN
+        navigate('/dashboard');
       }
 
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "Error al iniciar sesión. Verifica tus credenciales o si tu cuenta está activa.");
+      alert(error.response?.data?.message || "Error de credenciales.");
     }
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-      <div className="bg-[#1a1a1a] rounded-lg shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 w-full max-w-5xl border border-gray-800">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-12 font-sans">
+      <div className="bg-white rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] overflow-hidden grid grid-cols-1 md:grid-cols-2 w-full max-w-6xl border border-gray-100">
         
-        {/* --- COLUMNA IZQUIERDA: FORMULARIO --- */}
-        <div className="p-10 md:p-14 flex flex-col justify-center border-t-4 md:border-t-0 md:border-l-4 border-cyan-500">
-          <header className="mb-8">
-            <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
-              Iniciar <span className="text-cyan-500">Sesión</span>
+        <div className="p-12 md:p-20 flex flex-col justify-center relative overflow-hidden">
+          <div className="absolute -top-20 -left-20 w-64 h-64 bg-[#A8D0E6] opacity-20 rounded-full blur-3xl"></div>
+          
+          <header className="mb-12 relative z-10">
+            <span className="text-[#C2A385] font-black uppercase tracking-[0.4em] text-[10px] mb-3 block italic">SupportComputer </span>
+            <h2 className="text-5xl font-light text-[#333] tracking-tighter leading-none mb-4">
+              Iniciar <span className="font-extrabold text-[#376996]">Sesión</span>
             </h2>
-            <p className="text-gray-400 text-sm mt-2 font-bold uppercase tracking-widest">SupportComputer Filter</p>
+            <div className="w-12 h-1 bg-[#376996] rounded-full"></div>
           </header>
           
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-widest">Correo Electrónico</label>
+          <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+            <div className="space-y-1">
+              <label className="text-[9px] font-black text-slate-400 uppercase ml-2 tracking-widest">Credencial de Usuario</label>
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@correo.com" 
+                placeholder="usuario@daytech.com" 
                 required
-                className="w-full p-4 bg-[#111] border border-gray-700 text-white focus:border-cyan-500 outline-none transition-all duration-300"
+                className="w-full p-5 bg-gray-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-[#376996] focus:ring-4 focus:ring-blue-50 transition-all font-medium text-[#333]"
               />
             </div>
             
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-widest">Contraseña</label>
+            <div className="space-y-1">
+              <label className="text-[9px] font-black text-slate-400 uppercase ml-2 tracking-widest">Código de Acceso</label>
               <input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="•••••••••" 
+                placeholder="••••••••••••" 
                 required
-                className="w-full p-4 bg-[#111] border border-gray-700 text-white focus:border-cyan-500 outline-none transition-all duration-300"
+                className="w-full p-5 bg-gray-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-[#376996] focus:ring-4 focus:ring-blue-50 transition-all font-medium text-[#333]"
               />
             </div>
 
             <button 
               type="submit"
-              className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-black py-4 uppercase transition-all duration-300 shadow-lg shadow-cyan-500/20 mt-4 tracking-widest"
+              className="w-full bg-[#376996] hover:bg-[#333] text-white font-black py-5 rounded-2xl uppercase text-[10px] tracking-[0.2em] transition-all duration-500 shadow-xl shadow-blue-900/10 active:scale-95 mt-4"
             >
-              Ingresar al Sistema
+              Acceder al Laboratorio
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <a href="#" className="text-xs text-gray-500 hover:text-cyan-500 transition uppercase font-bold">¿Olvidaste tu contraseña?</a>
-          </div>
         </div>
 
-        {/* --- COLUMNA DERECHA (Invitación al Registro) --- */}
-        <div className="bg-[#111] p-10 md:p-14 text-center flex flex-col justify-center items-center border-t border-gray-800 md:border-t-0 md:border-l">
-          <div className="mb-6 text-center">
-            <div className="w-16 h-1 bg-cyan-500 mx-auto mb-6"></div>
-            <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tighter leading-tight">
-              ¿Eres nuevo <br /> <span className="text-cyan-500">en la plataforma?</span>
+        <div className="bg-[#F2E8CF] p-12 md:p-20 text-center flex flex-col justify-center items-center relative overflow-hidden group">
+          <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-[#A7D7C5] opacity-40 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000"></div>
+
+          <div className="relative z-10 text-center flex flex-col items-center">
+            {/* Logo con resalte oscuro focalizado */}
+            <div className="relative mb-10 group cursor-pointer">
+              <div className="absolute inset-0 bg-black/90 blur-2xl rounded-full scale-110 opacity-100 group-hover:scale-125 transition-transform duration-700"></div>
+              <img src={logo} alt="DAY Tech" className="h-20 w-auto relative z-10 brightness-110 drop-shadow-[0_0_15px_rgba(0,0,0,0.8)]" />
+            </div>
+
+            <h3 className="text-4xl font-light text-[#333] mb-6 tracking-tighter leading-tight">
+              ¿Eres nuevo <br /> <span className="font-extrabold text-[#376996]">en SupportComputer?</span>
             </h3>
-            <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto mb-10 italic">
-              Regístrate para solicitar soporte técnico en tiempo real para tus equipos de cómputo.
+            <p className="text-[#333] opacity-60 text-sm leading-relaxed max-w-xs mx-auto mb-12 font-medium italic">
+              Crea tu perfil para agendar diagnósticos, seguir el estado de tus reparaciones y contactar con nuestros especialistas.
             </p>
           </div>
 
           <Link 
             to="/register" 
-            className="inline-block border-2 border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-white font-black py-3 px-12 uppercase transition-all duration-300 shadow-xl tracking-widest text-sm"
+            className="relative z-10 inline-block bg-white text-[#333] hover:bg-[#333] hover:text-white font-black py-5 px-14 rounded-full uppercase transition-all duration-500 shadow-2xl tracking-[0.2em] text-[10px] active:scale-95"
           >
-            Crear una Cuenta
+            Registrar Nuevo Cliente
           </Link>
         </div>
       </div>

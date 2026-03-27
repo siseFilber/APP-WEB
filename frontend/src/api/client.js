@@ -1,16 +1,27 @@
 import axios from 'axios';
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  // Asegúrate de que esta URL sea la de tu backend real
+  baseURL: 'https://filberdev.cloud/api', 
+  withCredentials: true
 });
 
-// Interceptor para poner el token de Filber en el Header
-client.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// INTERCEPTOR: Antes de enviar la petición al servidor...
+client.interceptors.request.use(
+  (config) => {
+    // 1. Buscamos el token en el almacenamiento del navegador
+    const token = localStorage.getItem('token');
+    
+    // 2. Si existe, lo metemos en la cabecera de la petición
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 export default client;

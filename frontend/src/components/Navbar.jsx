@@ -1,88 +1,86 @@
 import { Link, useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.svg';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  
-  // Obtenemos los datos del usuario del localStorage
   const user = JSON.parse(localStorage.getItem('user'));
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     navigate('/');
-    window.location.reload(); 
+    window.location.reload();
   };
 
   return (
-    <nav className="bg-[#1a1a1a] text-white py-4 px-6 shadow-2xl sticky top-0 z-50 border-b border-gray-800">
-      <div className="container mx-auto flex justify-between items-center">
-        
-        {/* Logo de Forward Vision / SupportComputer */}
-        <Link to="/" className="text-2xl font-black tracking-tighter italic group">
-          SUPPORT<span className="text-cyan-500 group-hover:text-white transition-colors">COMPUTER</span>
+    <nav className="fixed top-0 left-0 right-0 z-50 
+                    bg-black/80 backdrop-blur-md border-b border-gray-100 
+                    shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center relative">
+
+        {/* --- LOGO CON RESALTE OSCURO --- */}
+        <Link to="/" className="flex items-center group relative">
+          {/* Círculo de brillo oscuro detrás del logo para que resalte el blanco */}
+          <div className="absolute top-[-15px] left-[-20px] w-32 h-32 bg-black/40 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <img
+            src={logo}
+            alt="DAY tech"
+            /* Invertimos un poco el brillo con drop-shadow oscuro para dar profundidad
+               y usamos un filtro de brillo para que el blanco sea más puro.
+            */
+            className="h-24 w-auto absolute top-[-15px] z-10 
+                       transition-all duration-500 group-hover:scale-110 
+                       drop-shadow-[0_5px_15px_rgba(0,0,0,0.6)]
+                       brightness-110" 
+          />
+          {/* Espaciador invisible */}
+          <div className="h-14 w-28"></div>
         </Link>
 
-        {/* Links Dinámicos */}
-        <div className="hidden md:flex items-center space-x-8 text-[11px] font-black uppercase tracking-widest italic">
-          <Link to="/" className="hover:text-cyan-500 transition">Inicio</Link>
-          <Link to="/nosotros" className="hover:text-cyan-500 transition">Nosotros</Link>
-          <Link to="/tecnicos" className="hover:text-cyan-500 transition">Staff</Link>
-          <Link to="/servicios" className="hover:text-cyan-500 transition">Servicios</Link>
-          
-          {/* 1. LÓGICA PARA CLIENTE */}
+        {/* --- NAVEGACIÓN --- */}
+        <div className="hidden md:flex items-center gap-x-8 text-[11px] font-black uppercase tracking-widest text-slate-500">
+          <Link to="/" className="hover:text-[#376996] transition-colors">Inicio</Link>
+          <Link to="/nosotros" className="hover:text-[#376996] transition-colors">Nosotros</Link>
+          <Link to="/tecnicos" className="hover:text-[#376996] transition-colors">Staff</Link>
+          <Link to="/servicios" className="hover:text-[#376996] transition-colors">Servicios</Link>
+          <Link to="/contacto" className="hover:text-[#376996] transition-colors">Contacto</Link>
+
+          {/* Gestión de Roles */}
           {user?.role === 'CLIENT' && (
-            <>
-              <Link to="/mis-tickets" className="text-cyan-500 border border-cyan-500/30 px-3 py-1 hover:bg-cyan-500 hover:text-black transition-all">
-                Mis Pedidos
-              </Link>
-            </>
+            <Link to="/mis-tickets" className="px-5 py-2 bg-[#A8D0E6] text-[#0D3B66] rounded-full hover:bg-[#376996] hover:text-white transition-all">
+              Mis Pedidos
+            </Link>
           )}
 
-          {/* 2. LÓGICA PARA TÉCNICO */}
           {user?.role === 'TECH' && (
-            <>
-              <Link to="/panel-tecnico" className="text-cyan-500 border border-cyan-500/30 px-3 py-1 hover:bg-cyan-500 hover:text-black transition-all">
-                Gestión Tickets
-              </Link>
-              <Link to="/mis-servicios" className="hover:text-cyan-500 transition">
-                Mis Servicios
-              </Link>
-            </>
+            <Link to="/panel-tecnico" className="px-5 py-2 bg-[#A7D7C5] text-[#0D3B66] rounded-full hover:bg-[#376996] hover:text-white transition-all">
+              NOC Operaciones
+            </Link>
           )}
 
-          {/* 3. LÓGICA PARA ADMIN */}
           {user?.role === 'ADMIN' && (
-            <>
-              <Link to="/panel-tecnico" className="text-red-500 border border-red-500/30 px-3 py-1 hover:bg-red-500 hover:text-white transition-all">
-                Admin Panel
-              </Link>
-            </>
+            <Link to="/panel-tecnico" className="px-5 py-2 bg-[#F2E8CF] text-[#333] rounded-full hover:bg-[#376996] hover:text-white transition-all">
+              Consola Admin
+            </Link>
           )}
-
-          <Link to="/contacto" className="hover:text-cyan-500 transition">Contacto</Link>
         </div>
 
-        {/* Botón Login / Logout */}
+        {/* --- SECCIÓN USUARIO --- */}
         <div className="flex items-center gap-4">
           {user ? (
-            <div className="flex items-center gap-4 border-l border-gray-800 pl-4">
-              <div className="text-right hidden sm:block">
-                <p className="text-[9px] text-gray-500 uppercase font-black leading-none">Usuario</p>
-                <p className="text-[11px] font-bold text-cyan-400 italic uppercase">{user.name}</p>
+            <div className="flex items-center gap-4 border-l border-gray-100 pl-6">
+              <div className="hidden sm:block text-right">
+                <p className="text-[8px] text-slate-400 tracking-[0.3em] font-black uppercase">Online</p>
+                <p className="text-sm font-bold text-slate-700">{user.name}</p>
               </div>
-              <button 
-                onClick={handleLogout}
-                className="bg-transparent border border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-4 py-2 text-[10px] font-black uppercase transition-all italic shadow-lg shadow-red-600/10"
-              >
-                Logout
+              <button onClick={handleLogout} className="w-10 h-10 flex items-center justify-center bg-gray-100 text-slate-400 hover:bg-rose-500 hover:text-white rounded-full transition-all">
+                ×
               </button>
             </div>
           ) : (
-            <Link 
-              to="/login" 
-              className="bg-cyan-500 hover:bg-white text-black px-6 py-2 text-[10px] font-black uppercase transition-all italic shadow-lg shadow-cyan-500/20"
-            >
-              Acceso Sistema
+            <Link to="/login" className="px-8 py-2.5 bg-[#376996] hover:bg-[#333] text-white font-black rounded-full text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-blue-900/10 transition-all active:scale-95">
+              Acceso NOC
             </Link>
           )}
         </div>

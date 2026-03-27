@@ -5,10 +5,13 @@ import Footer from '../components/Footer';
 
 const MainLayout = () => {
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans bg-black">
       <Navbar />
-      <main className="flex-grow">
-        <Outlet /> {/* Aquí aparecerá el Home.jsx */}
+      {/* Añadimos pt-24 (96px) para que el contenido empiece 
+          justo debajo del Navbar transparente. 
+      */}
+      <main className="flex-grow pt-24"> 
+        <Outlet /> 
       </main>
       <Footer />
     </div>

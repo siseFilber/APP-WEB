@@ -6,7 +6,6 @@ const GestionarServicios = () => {
   const [showModal, setShowModal] = useState(false);
   const [newService, setNewService] = useState({ name: '', price: '', description: '' });
 
-  // 1. Definimos la función de carga primero
   const loadServices = async () => {
     try {
       const res = await getMyServicesRequest();
@@ -16,157 +15,166 @@ const GestionarServicios = () => {
     }
   };
 
-  // 2. Ejecutamos el efecto de carga al montar el componente
   useEffect(() => {
     loadServices();
   }, []);
 
-  // 3. Manejador para crear nuevos servicios
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await createServiceRequest(newService);
-      setShowModal(false); // Cerrar modal
-      setNewService({ name: '', price: '', description: '' }); // Limpiar formulario
-      await loadServices(); // Recargar la lista automáticamente
-      alert("Servicio creado con éxito");
+      setShowModal(false);
+      setNewService({ name: '', price: '', description: '' });
+      await loadServices();
     } catch (error) {
       console.error("Error detallado:", error.response?.data || error.message);
-      alert("Error al crear el servicio. Revisa la consola.");
     }
   };
 
-  // 4. Manejador para eliminar servicios
   const handleDelete = async (id) => {
-    if (window.confirm("¿Estás seguro de eliminar este servicio?")) {
+    if (window.confirm("¿Estás seguro de eliminar este servicio del catálogo?")) {
       try {
         await deleteServiceRequest(id);
         await loadServices();
       } catch (error) {
         console.error("Error al eliminar:", error);
-        alert("No se pudo eliminar el servicio");
       }
     }
   };
 
   return (
-    <div className="py-10 px-6">
-      {/* Cabecera */}
-      <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
-        <div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
-            Mis <span className="text-cyan-500">Servicios</span>
-          </h2>
-          <p className="text-gray-500 text-xs mt-1 uppercase tracking-widest font-bold">
-            Catálogo de Soporte Técnico
-          </p>
+    <div className="py-16 px-8 bg-gray-50 min-h-screen font-sans text-[#333]">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* --- CABECERA ADMINISTRATIVA --- */}
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-gray-100 pb-8 gap-6">
+          <div>
+            <span className="text-[#C2A385] font-black uppercase tracking-[0.4em] text-[10px] mb-3 block italic">Admin Panel / NOC</span>
+            <h2 className="text-5xl font-light text-[#333] tracking-tighter leading-none">
+              Gestión de <span className="font-extrabold text-[#376996]">Servicios</span>
+            </h2>
+            <p className="text-slate-500 text-xs mt-4 uppercase tracking-[0.3em] font-bold">
+              Configuración del Catálogo Técnico
+            </p>
+          </div>
+          <button 
+            onClick={() => setShowModal(true)}
+            className="bg-[#376996] hover:bg-[#333] text-white font-black py-4 px-10 rounded-2xl uppercase text-[10px] tracking-widest transition-all shadow-xl shadow-blue-900/10 active:scale-95 flex items-center gap-2"
+          >
+            <span className="text-lg">+</span> Registrar Nuevo Servicio
+          </button>
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="bg-cyan-500 hover:bg-cyan-600 text-white font-black py-3 px-6 uppercase text-xs transition shadow-lg shadow-cyan-500/20 active:scale-95"
-        >
-          + Agregar Servicio
-        </button>
-      </div>
 
-      {/* Tabla de Servicios */}
-      <div className="overflow-x-auto bg-[#111] border border-gray-800 rounded-lg shadow-2xl">
-        <table className="w-full text-left text-sm text-gray-400">
-          <thead className="text-xs text-white uppercase bg-[#1a1a1a] border-b border-gray-800">
-            <tr>
-              <th className="px-6 py-4 tracking-widest">Servicio</th>
-              <th className="px-6 py-4 tracking-widest">Descripción</th>
-              <th className="px-6 py-4 tracking-widest">Precio</th>
-              <th className="px-6 py-4 text-center tracking-widest">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-800">
-            {services.length > 0 ? (
-              services.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-900/40 transition-colors">
-                  <td className="px-6 py-4 font-bold text-white uppercase">{s.name}</td>
-                  <td className="px-6 py-4 text-xs italic text-gray-500">{s.description || 'Sin descripción'}</td>
-                  <td className="px-6 py-4 text-cyan-500 font-black">S/ {s.price}</td>
-                  <td className="px-6 py-4 text-center">
-                    <button 
-                      onClick={() => handleDelete(s.id)} 
-                      className="text-red-500 hover:text-red-400 font-black uppercase text-[10px] tracking-tighter transition"
-                    >
-                      [ Eliminar ]
-                    </button>
+        {/* --- TABLA DE SERVICIOS (ESTILO MINIMALISTA) --- */}
+        <div className="overflow-hidden bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] border border-gray-100">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50/50 border-b border-gray-100">
+                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Servicio</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Descripción Técnica</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Costo Base</th>
+                <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Gestión</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {services.length > 0 ? (
+                services.map((s) => (
+                  <tr key={s.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <td className="px-8 py-6">
+                      <p className="font-bold text-[#333] uppercase tracking-tight group-hover:text-[#376996] transition-colors">{s.name}</p>
+                    </td>
+                    <td className="px-8 py-6">
+                      <p className="text-xs italic text-slate-400 max-w-xs truncate font-medium">{s.description || 'Sin especificaciones técnicas'}</p>
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className="px-4 py-2 bg-[#A8D0E6]/30 text-[#0D3B66] rounded-xl font-black text-sm">S/ {s.price}</span>
+                    </td>
+                    <td className="px-8 py-6 text-center">
+                      <button 
+                        onClick={() => handleDelete(s.id)} 
+                        className="text-rose-400 hover:text-rose-600 font-black uppercase text-[9px] tracking-widest transition-all p-2 hover:bg-rose-50 rounded-lg"
+                      >
+                        [ Dar de Baja ]
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-8 py-20 text-center text-slate-300 font-bold uppercase tracking-widest text-xs italic">
+                    El inventario de servicios está vacío.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4" className="px-6 py-10 text-center text-gray-600 italic">
-                  No tienes servicios registrados. ¡Agrega el primero!
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Modal de Registro */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-[#1a1a1a] p-8 border-t-4 border-cyan-500 w-full max-w-md shadow-2xl relative">
-            <h3 className="text-xl font-black text-white mb-6 uppercase tracking-tighter">
-              Nuevo <span className="text-cyan-500">Servicio</span>
-            </h3>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nombre del Servicio</label>
-                <input 
-                  type="text" 
-                  placeholder="Ej: Formateo de PC" 
-                  value={newService.name}
-                  onChange={(e) => setNewService({...newService, name: e.target.value})}
-                  className="w-full p-3 bg-[#0a0a0a] border border-gray-800 text-white focus:border-cyan-500 outline-none transition" 
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Precio (Soles)</label>
-                <input 
-                  type="number" 
-                  placeholder="50.00" 
-                  value={newService.price}
-                  onChange={(e) => setNewService({...newService, price: e.target.value})}
-                  className="w-full p-3 bg-[#0a0a0a] border border-gray-800 text-white focus:border-cyan-500 outline-none transition" 
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descripción</label>
-                <textarea 
-                  placeholder="Detalla lo que incluye el servicio..." 
-                  value={newService.description}
-                  onChange={(e) => setNewService({...newService, description: e.target.value})}
-                  className="w-full p-3 bg-[#0a0a0a] border border-gray-800 text-white focus:border-cyan-500 outline-none h-24 resize-none transition"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button type="submit" className="flex-1 bg-cyan-500 hover:bg-cyan-600 py-3 text-white font-black uppercase text-xs transition">
-                  Guardar
-                </button>
-                <button 
-                  type="button" 
-                  onClick={() => setShowModal(false)} 
-                  className="flex-1 bg-gray-800 hover:bg-gray-700 py-3 text-white font-black uppercase text-xs transition"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+
+        {/* --- MODAL DE REGISTRO (ESTILO ORGÁNICO) --- */}
+        {showModal && (
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-50 px-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden border border-gray-100 relative">
+              {/* Forma decorativa superior */}
+              <div className="h-4 bg-gradient-to-r from-[#A8D0E6] via-[#A7D7C5] to-[#F2E8CF]"></div>
+              
+              <div className="p-10">
+                <h3 className="text-3xl font-black text-[#333] mb-8 tracking-tighter">
+                  Nuevo <span className="text-[#376996]">Item</span>
+                </h3>
+                
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase ml-2 tracking-widest">Nombre del Servicio</label>
+                    <input 
+                      type="text" 
+                      placeholder="Ej: Mantenimiento OLT" 
+                      value={newService.name}
+                      onChange={(e) => setNewService({...newService, name: e.target.value})}
+                      className="w-full p-4 bg-gray-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-[#376996] focus:ring-4 focus:ring-blue-50 transition-all font-medium" 
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase ml-2 tracking-widest">Tarifa en Soles</label>
+                    <input 
+                      type="number" 
+                      placeholder="0.00" 
+                      value={newService.price}
+                      onChange={(e) => setNewService({...newService, price: e.target.value})}
+                      className="w-full p-4 bg-gray-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-[#376996] focus:ring-4 focus:ring-blue-50 transition-all font-medium" 
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase ml-2 tracking-widest">Descripción Operativa</label>
+                    <textarea 
+                      placeholder="Detalles del alcance del servicio..." 
+                      value={newService.description}
+                      onChange={(e) => setNewService({...newService, description: e.target.value})}
+                      className="w-full p-4 bg-gray-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-[#376996] focus:ring-4 focus:ring-blue-50 h-28 resize-none transition-all font-medium"
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <button type="submit" className="flex-[2] bg-[#376996] hover:bg-[#333] py-4 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all shadow-lg shadow-blue-900/10 active:scale-95">
+                      Confirmar
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setShowModal(false)} 
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 py-4 text-[#333] font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all"
+                    >
+                      X
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
