@@ -1,27 +1,31 @@
 const { prisma } = require('../config/db');
 
-// Obtener todos los servicios (útil para el administrador)
 const getAllServices = async () => {
     return await prisma.service.findMany({
-        include: { technician: true } // Para saber quién ofrece qué
+        include: { technician: { select: { id: true, name: true, email: true } } }
     });
 };
 
-// Obtener los servicios de UN técnico específico (Para su panel de control)
+const getServiceById = async (id) => {
+    return await prisma.service.findUnique({
+        where: { id: Number(id) },
+        include: { technician: { select: { id: true, name: true, email: true } } }
+    });
+};
+
 const getServicesByTech = async (techId) => {
     return await prisma.service.findMany({
         where: { techId: Number(techId) }
     });
 };
 
-// Crear servicio vinculado a un técnico
 const createService = async (techId, data) => {
     return await prisma.service.create({
         data: {
             name: data.name,
             price: parseFloat(data.price),
             description: data.description,
-            techId: Number(techId) // <--- Aquí vinculamos al técnico
+            techId: Number(techId)
         }
     });
 };
@@ -30,8 +34,9 @@ const updateService = async (id, data) => {
     return await prisma.service.update({
         where: { id: Number(id) },
         data: {
-            ...data,
-            price: data.price ? parseFloat(data.price) : undefined
+            name: data.name,
+            price: data.price ? parseFloat(data.price) : undefined,
+            description: data.description
         }
     });
 };
@@ -41,20 +46,20 @@ const deleteService = async (id) => {
         where: { id: Number(id) }
     });
 };
-const getTechUsers = async (req, res) => {
-    try {
-        const techs = await userService.getTechUsersService();
-        res.status(200).json(techs);
-    } catch (error) {
-        res.status(500).json({ message: "Error al obtener la lista de técnicos" });
-    }
+
+const getTechUsersService = async () => {
+    return await prisma.user.findMany({
+        where: { role: 'TECH' },
+        select: { id: true, name: true, email: true, status: true }
+    });
 };
 
 module.exports = {
     getAllServices,
-    getServicesByTech, // Agregado
+    getServiceById,
+    getServicesByTech,
     createService,
     updateService,
     deleteService,
-    getTechUsers
+    getTechUsersService
 };
