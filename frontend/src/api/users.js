@@ -1,41 +1,77 @@
-import client from './client';
+import client from "./client";
 
-// --- RUTAS PÚBLICAS (Sin Token / Autenticación) ---
-export const registerRequest = (user) => client.post('/users/register', user);
-export const loginRequest = (user) => client.post('/users/login', user);
-export const verifyOTPRequest = (data) => client.post('/users/verify-otp', data);
-export const resendOTPRequest = (email) => client.post('/users/resend-otp', { email });
+// --- RUTAS DE AUTENTICACIÓN ---
 
-// --- RUTAS PÚBLICAS (Visualización para Clientes) ---
-// Obtener lista de técnicos activos
-export const getTechUsersRequest = () => client.get('/users/tecnicos');
+/**
+ * Registra un nuevo usuario (Cliente o Técnico)
+ */
+export const registerRequest = (user) => client.post("/users/register", user);
 
-// NUEVA: Obtener los servicios específicos de un técnico por su ID
-export const getUserServicesRequest = (id) => client.get(`/users/${id}/services`);
+/**
+ * Inicia sesión y obtiene el Token JWT
+ */
+export const loginRequest = (user) => client.post("/users/login", user);
 
-// NUEVA: Obtener perfil completo del técnico (Data + Servicios)
+/**
+ * Verifica la cuenta mediante el código OTP enviado al correo
+ */
+export const verifyOTPRequest = (data) => client.post("/users/verify-otp", data);
+
+/**
+ * Solicita un nuevo código de verificación
+ */
+export const resendOTPRequest = (email) => client.post("/users/resend-otp", { email });
+
+
+// --- RUTAS DE PERFIL (PRIVADAS) ---
+
+/**
+ * Obtiene los datos del usuario logueado (usa el token del interceptor)
+ */
+export const getProfileRequest = () => client.get("/users/profile");
+
+/**
+ * Actualiza los datos básicos del perfil (DNI, Nombre, Email)
+ */
+export const updateProfileRequest = (data) => client.put("/users/profile", data);
+
+
+// --- RUTAS DE STAFF (PÚBLICAS PARA EL CATÁLOGO) ---
+
+/**
+ * Lista todos los técnicos con status 'ACTIVE'
+ */
+export const getTechUsersRequest = () => client.get("/users/tecnicos");
+
+/**
+ * Obtiene el perfil detallado de un técnico por su ID
+ */
 export const getTechProfileRequest = (id) => client.get(`/users/tecnicos/${id}`);
 
+/**
+ * Obtiene la lista de servicios asociados a un técnico específico
+ */
+export const getUserServicesRequest = (id) => client.get(`/users/${id}/services`);
 
-// --- RUTAS PRIVADAS (Cualquier usuario logueado) ---
-export const getProfileRequest = () => client.get('/users/profile');
-export const updateProfileRequest = (data) => client.put('/users/profile', data);
 
+// --- RUTAS DE ADMINISTRACIÓN (SOLO ADMIN) ---
 
-// --- RUTAS DE ADMINISTRACIÓN (Solo ADMIN) ---
-// 1. Listar todos los usuarios del sistema
-export const getAllUsersRequest = () => client.get('/users');
+/**
+ * Obtiene la lista completa de usuarios del sistema
+ */
+export const getAllUsersRequest = () => client.get("/users");
 
-// 2. Detalle de un usuario específico
-export const getUserDetailRequest = (id) => client.get(`/users/${id}`);
+/**
+ * Actualiza el rol de un usuario (Ej: de CLIENT a TECH)
+ */
+export const changeRoleRequest = (id, role) => client.patch(`/users/${id}/role`, { role });
 
-// 3. Cambiar estado (Aprobar/Banear/Activar)
-export const updateUserStatusRequest = (id, status) => 
-    client.patch(`/users/${id}/status`, { status });
+/**
+ * Actualiza el estado de un usuario (Ej: ACTIVE, PENDING, BANNED)
+ */
+export const updateStatusRequest = (id, status) => client.patch(`/users/${id}/status`, { status });
 
-// 4. Cambiar Rol (Ej: Ascender CLIENT a TECH)
-export const updateUserRoleRequest = (id, role) => 
-    client.patch(`/users/${id}/role`, { role });
-
-// 5. Eliminar usuario permanentemente
+/**
+ * Elimina un usuario de la base de datos
+ */
 export const deleteUserRequest = (id) => client.delete(`/users/${id}`);
