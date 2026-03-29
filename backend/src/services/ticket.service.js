@@ -1,49 +1,65 @@
 const { prisma } = require('../config/db');
 
-// 1. Crear el ticket (Relación con Cliente)
+/**
+ * 1. CREAR TICKET (Iniciado por Cliente)
+ */
 const createTicketService = async (data) => {
     return await prisma.ticket.create({
         data: {
             title: data.title,
             description: data.description,
             priority: data.priority || "NORMAL",
-            clientId: Number(data.clientId) // Aseguramos que sea Integer para MySQL
+            status: "OPEN", // Estado inicial
+            clientId: Number(data.clientId) 
         }
     });
 };
-// 2. Obtener tickets de un cliente específico
+
+/**
+ * 2. OBTENER TICKETS DE UN CLIENTE (Historial del Cliente)
+ */
 const getTicketsByClient = async (clientId) => {
     return await prisma.ticket.findMany({
         where: { clientId: Number(clientId) },
-        include: { technician: { select: { name: true } } }, // Para saber quién lo atiende
-        orderBy: { createdAt: 'desc' }
-    });
-};
-
-// 3. Obtener todos los tickets (Admin/Tech)
-const getAllTicketsService = async () => {
-    return await prisma.ticket.findMany({
-        include: {
-            client: { select: { name: true, email: true } },
-            technician: { select: { name: true } }
+        include: { 
+            technician: { select: { name: true, email: true } },
+            services: true // Ver qué servicios se le están aplicando
         },
         orderBy: { createdAt: 'desc' }
     });
 };
 
-// 4. Detalle completo de un ticket (Incluye los servicios cobrados)
+/**
+ * 3. OBTENER TODOS LOS TICKETS (Para el Panel del Técnico/NOC)
+ */
+const getAllTicketsService = async () => {
+    return await prisma.ticket.findMany({
+        include: {
+            client: { select: { name: true, email: true, dni: true } },
+            technician: { select: { name: true } },
+            services: { select: { name: true, price: true } }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+};
+
+/**
+ * 4. DETALLE DE UN TICKET POR ID
+ */
 const getTicketById = async (id) => {
     return await prisma.ticket.findUnique({
         where: { id: Number(id) },
         include: {
             client: true,
             technician: true,
-            services: true // Trae la lista de reparaciones hechas (Formateo, etc.)
+            services: true 
         }
     });
 };
 
-// 5. Asignar Técnico y cambiar estado a En Progreso
+/**
+ * 5. ASIGNAR TÉCNICO (Misión Tomada)
+ */
 const assignTechService = async (ticketId, techId) => {
     return await prisma.ticket.update({
         where: { id: Number(ticketId) },
@@ -54,7 +70,9 @@ const assignTechService = async (ticketId, techId) => {
     });
 };
 
-// 6. Actualizar solo el estado (OPEN, IN_PROGRESS, RESOLVED, CLOSED)
+/**
+ * 6. ACTUALIZAR ESTADO (Flujo: READY_FOR_REVIEW -> CLOSED)
+ */
 const updateStatusService = async (id, status) => {
     return await prisma.ticket.update({
         where: { id: Number(id) },
@@ -62,7 +80,9 @@ const updateStatusService = async (id, status) => {
     });
 };
 
-// 7. Vincular un servicio del catálogo al ticket
+/**
+ * 7. VINCULAR SERVICIO AL TICKET (Añadir ítems de cobro)
+ */
 const addServiceToTicketService = async (ticketId, serviceId) => {
     return await prisma.ticket.update({
         where: { id: Number(ticketId) },
@@ -75,6 +95,15 @@ const addServiceToTicketService = async (ticketId, serviceId) => {
     });
 };
 
+/**
+ * 8. ELIMINAR O CANCELAR TICKET
+ */
+const deleteTicketService = async (id) => {
+    return await prisma.ticket.delete({
+        where: { id: Number(id) }
+    });
+};
+
 module.exports = {
     createTicketService,
     getTicketsByClient,
@@ -82,5 +111,6 @@ module.exports = {
     getTicketById,
     assignTechService,
     updateStatusService,
-    addServiceToTicketService
+    addServiceToTicketService,
+    deleteTicketService
 };

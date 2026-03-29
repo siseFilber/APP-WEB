@@ -1,8 +1,9 @@
 const ticketService = require('../services/ticket.service');
 
+// 1. CREAR TICKET (Cliente)
 const createTicket = async (req, res) => {
   try {
-    // IMPORTANTE: El clientId viene del TOKEN (req.user.id)
+    // Extraemos el clientId del token para mayor seguridad
     const ticketData = {
       ...req.body,
       clientId: req.user.id 
@@ -11,11 +12,11 @@ const createTicket = async (req, res) => {
     const newTicket = await ticketService.createTicketService(ticketData);
     res.status(201).json(newTicket);
   } catch (error) {
-    // Si falta el title aquí, verás el error 400
     res.status(400).json({ error: error.message });
   }
 };
 
+// 2. MIS TICKETS (Vista del Cliente)
 const getMyTickets = async (req, res) => {
     try {
         const tickets = await ticketService.getTicketsByClient(req.user.id);
@@ -25,6 +26,7 @@ const getMyTickets = async (req, res) => {
     }
 };
 
+// 3. TODOS LOS TICKETS (Vista del Técnico / NOC)
 const getAllTickets = async (req, res) => {
     try {
         const tickets = await ticketService.getAllTicketsService();
@@ -34,6 +36,7 @@ const getAllTickets = async (req, res) => {
     }
 };
 
+// 4. DETALLE DE TICKET
 const getTicketDetail = async (req, res) => {
     try {
         const ticket = await ticketService.getTicketById(req.params.id);
@@ -44,31 +47,47 @@ const getTicketDetail = async (req, res) => {
     }
 };
 
+// 5. ASIGNAR TÉCNICO
 const assignTechnician = async (req, res) => {
     try {
         const { techId } = req.body;
-        const updated = await ticketService.assignTechService(req.params.id, techId);
-        res.json({ message: "Técnico asignado correctamente", ticket: updated });
+        // Si techId no viene en el body, lo tomamos del token (el técnico se auto-asigna)
+        const finalTechId = techId || req.user.id;
+        
+        const updated = await ticketService.assignTechService(req.params.id, finalTechId);
+        res.json({ message: "Misión aceptada", ticket: updated });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
+// 6. ACTUALIZAR ESTADO (Realizado / Cerrado)
 const updateTicketStatus = async (req, res) => {
     try {
         const { status } = req.body;
         const updated = await ticketService.updateStatusService(req.params.id, status);
-        res.json({ message: "Estado actualizado", ticket: updated });
+        res.json({ message: `Ticket actualizado a ${status}`, ticket: updated });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
+// 7. VINCULAR SERVICIO COMERCIAL AL TICKET
 const addServiceToTicket = async (req, res) => {
     try {
         const { serviceId } = req.body;
         const updated = await ticketService.addServiceToTicketService(req.params.id, serviceId);
-        res.json({ message: "Servicio agregado al ticket", ticket: updated });
+        res.json({ message: "Servicio vinculado", ticket: updated });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+// 8. ELIMINAR TICKET (Admin)
+const deleteTicket = async (req, res) => {
+    try {
+        await ticketService.deleteTicketService(req.params.id);
+        res.json({ message: "Ticket eliminado permanentemente" });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -81,5 +100,6 @@ module.exports = {
     getTicketDetail,
     assignTechnician,
     updateTicketStatus,
-    addServiceToTicket
+    addServiceToTicket,
+    deleteTicket
 };

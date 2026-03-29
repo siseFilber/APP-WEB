@@ -4,22 +4,23 @@ const serviceController = require('../controllers/service.controller');
 const { validateToken } = require('../middlewares/auth.middleware');
 const { checkRole } = require('../middlewares/role.middleware');
 
-// --- 1. RUTAS PÚBLICAS (Catálogo) ---
-// Obtener todos los servicios para la grilla principal
+// --- 1. RUTAS PÚBLICAS (Catálogo General) ---
+// Cualquiera puede ver qué servicios ofrece SupportComputer
 router.get('/', serviceController.getServices);
 
-// --- 2. RUTAS PRIVADAS / ESPECÍFICAS (Fijas primero) ---
-// Importante: /my-services y /tecnicos DEBEN ir antes de /:id
-router.get('/my-services', validateToken, serviceController.getMyServices);
+// --- 2. RUTAS PRIVADAS / ESPECÍFICAS (Orden Prioritario) ---
+// Obtener solo LOS MÍOS (Solo técnicos y admins autenticados)
+router.get('/my-services', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.getMyServices);
 
-// Lista de técnicos para el Admin/Staff
+// Ver lista de técnicos registrados (Para el administrador)
 router.get('/tecnicos', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.getTechUsers);
 
-// --- 3. RUTAS CON PARÁMETRO (:id) ---
-// Si ponemos esta arriba de /my-services, Express pensará que "my-services" es un ID
+// --- 3. RUTAS CON PARÁMETRO DINÁMICO ---
+// Detalle de un servicio por su ID (Debe ir después de las rutas fijas)
 router.get('/:id', serviceController.getServiceById);
 
-// --- 4. OPERACIONES DE ESCRITURA (Protegidas) ---
+// --- 4. OPERACIONES DE ESCRITURA (Gestión del Catálogo) ---
+// Solo el Staff (Tech/Admin) puede crear, editar o borrar servicios
 router.post('/', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.addService);
 router.put('/:id', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.updateExistingService);
 router.delete('/:id', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.removeService);

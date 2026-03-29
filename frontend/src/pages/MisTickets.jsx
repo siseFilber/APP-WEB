@@ -1,33 +1,46 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyTicketsRequest } from '../api/ticket.api';
+import { getMyTicketsRequest, updateTicketStatusRequest } from '../api/ticket.api';
 
 const MisTickets = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 1. Carga de historial de tickets del cliente
+  const fetchTickets = async () => {
+    try {
+      setLoading(true);
+      const res = await getMyTicketsRequest();
+      setTickets(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Error al obtener el historial:", error.response?.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const res = await getMyTicketsRequest();
-        // Validamos que la respuesta sea un array para evitar errores de .map
-        setTickets(Array.isArray(res.data) ? res.data : []);
-      } catch (error) {
-        console.error("Error al obtener el historial de tickets:", error.response?.data);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTickets();
   }, []);
 
-  // Función para determinar el color del badge según el estado
+  // NUEVA FUNCIÓN: El cliente cierra el ticket definitivamente
+  const finalizarTicketCliente = async (ticketId) => {
+    try {
+      if (!window.confirm("¿Confirmas que el servicio fue realizado correctamente para cerrar este ticket?")) return;
+      
+      await updateTicketStatusRequest(ticketId, 'CLOSED');
+      alert("Ticket finalizado con éxito. Gracias por confiar en SupportComputer.");
+      fetchTickets(); // Recargar lista
+    } catch (error) {
+      console.error("Error al cerrar ticket:", error);
+    }
+  };
+
   const getStatusStyle = (status) => {
     switch (status) {
       case 'OPEN': return 'bg-cyan-100 text-cyan-700 border-cyan-200';
       case 'IN_PROGRESS': return 'bg-amber-100 text-amber-700 border-amber-200';
+      case 'READY_FOR_REVIEW': return 'bg-emerald-100 text-emerald-700 border-emerald-200'; // Estado completado por tech
       case 'CLOSED': return 'bg-slate-100 text-slate-500 border-slate-200';
       default: return 'bg-gray-100 text-gray-500';
     }
@@ -44,7 +57,6 @@ const MisTickets = () => {
     <div className="min-h-screen bg-gray-50 text-[#333] font-sans py-20 px-6">
       <div className="container mx-auto max-w-4xl">
         
-        {/* Cabecera */}
         <header className="mb-16 flex justify-between items-end border-b border-slate-200 pb-8">
           <div>
             <span className="text-[#C2A385] font-black uppercase tracking-[0.4em] text-[10px] mb-3 block italic">Área de Cliente</span>
@@ -60,62 +72,67 @@ const MisTickets = () => {
           </button>
         </header>
 
-        {/* Listado Orgánico */}
         <div className="space-y-6">
           {tickets.length > 0 ? (
             tickets.map((ticket) => (
               <div 
                 key={ticket.id} 
-                className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.03)] border border-gray-100 hover:shadow-xl transition-all duration-500 group relative overflow-hidden"
+                className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-500 group relative overflow-hidden"
               >
-                {/* Indicador lateral de estado */}
-                <div className={`absolute left-0 top-0 bottom-0 w-2 ${ticket.status === 'OPEN' ? 'bg-cyan-400' : 'bg-amber-400'}`}></div>
+                {/* Indicador lateral dinámico */}
+                <div className={`absolute left-0 top-0 bottom-0 w-2 ${
+                  ticket.status === 'CLOSED' ? 'bg-slate-300' : 
+                  ticket.status === 'READY_FOR_REVIEW' ? 'bg-emerald-400' : 'bg-cyan-400'
+                }`}></div>
 
                 <div className="flex flex-col md:flex-row justify-between gap-6 relative z-10">
                   <div className="flex-grow">
                     <div className="flex items-center gap-4 mb-4">
                       <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusStyle(ticket.status)}`}>
-                        {ticket.status.replace('_', ' ')}
+                        {ticket.status === 'READY_FOR_REVIEW' ? 'POR CONFIRMAR' : ticket.status.replace('_', ' ')}
                       </span>
                       <span className="text-[10px] font-mono text-slate-300 font-bold">#TK-{ticket.id.toString().padStart(4, '0')}</span>
                     </div>
                     
                     <h3 className="text-2xl font-black text-[#333] uppercase tracking-tight mb-3 group-hover:text-[#376996] transition-colors">
-                      {ticket.title}
+                      {ticket.title || "Soporte Técnico"}
                     </h3>
                     
-                    <p className="text-sm text-slate-500 font-medium leading-relaxed italic mb-4">
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed italic">
                       "{ticket.description}"
                     </p>
                   </div>
 
-                  <div className="flex flex-col justify-between items-end min-w-[150px]">
+                  <div className="flex flex-col justify-between items-end min-w-[180px]">
                     <div className="text-right">
-                      <span className="text-[9px] font-black text-[#C2A385] uppercase block mb-1">Fecha de Registro</span>
+                      <span className="text-[9px] font-black text-[#C2A385] uppercase block mb-1">Registro</span>
                       <span className="text-xs font-bold text-slate-400">
                         {new Date(ticket.createdAt).toLocaleDateString('es-PE', { day: '2-digit', month: 'long' })}
                       </span>
                     </div>
                     
-                    <button className="mt-6 text-[10px] font-black uppercase tracking-widest text-[#376996] group-hover:translate-x-2 transition-transform">
-                      Ver Detalles ▹
-                    </button>
+                    <div className="flex flex-col gap-3 items-end w-full">
+                      {/* BOTÓN DE CIERRE: Solo aparece si el técnico ya terminó (READY_FOR_REVIEW) */}
+                      {ticket.status === 'READY_FOR_REVIEW' && (
+                        <button 
+                          onClick={() => finalizarTicketCliente(ticket.id)}
+                          className="bg-[#376996] text-white px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-[#0D3B66] transition-all shadow-lg animate-bounce"
+                        >
+                          Confirmar y Cerrar
+                        </button>
+                      )}
+
+                      <button className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-[#376996] transition-all">
+                        Ver Detalles ▹
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             ))
           ) : (
             <div className="bg-white rounded-[3rem] py-24 text-center border-2 border-dashed border-slate-100">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl opacity-20">📂</span>
-              </div>
               <p className="text-slate-300 font-black uppercase tracking-[0.3em] text-[10px]">No se encontraron registros activos</p>
-              <button 
-                onClick={() => navigate('/servicios')}
-                className="mt-8 bg-[#376996] text-white px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-[#333] transition-all"
-              >
-                Solicitar Primer Soporte
-              </button>
             </div>
           )}
         </div>
