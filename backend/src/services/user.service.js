@@ -150,7 +150,30 @@ const getServicesByUserId = async (userId) => {
     });
 };
 
+// Listar técnicos que están esperando aprobación (PENDING)
+const getPendingTechsService = async () => {
+    return await prisma.user.findMany({
+        where: {
+            role: "TECH",
+            status: "PENDING"
+        },
+        select: {
+            id: true,
+            dni: true,
+            name: true,
+            email: true,
+            createdAt: true
+        }
+    });
+};
 
+// Aprobar a un técnico (Cambiar de PENDING a ACTIVE)
+const approveTechService = async (id) => {
+    return await prisma.user.update({
+        where: { id: Number(id) },
+        data: { status: "ACTIVE" }
+    });
+};
 // ACTUALIZA TU EXPORTACIÓN AL FINAL DEL SERVICE:
 module.exports = { 
     getAllUsers, 
@@ -163,5 +186,7 @@ module.exports = {
     deleteUserService,
     getTechUsersService,
     getTechProfileWithServices, // <-- Nueva
-    getServicesByUserId         // <-- Nueva
+    getServicesByUserId   ,
+    getPendingTechsService, // <-- Nueva: Para el control del Admin
+    approveTechService      // <-- Nueva
 };

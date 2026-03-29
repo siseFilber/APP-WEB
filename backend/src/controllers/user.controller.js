@@ -106,17 +106,35 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+// Agregar al controlador:
+const getPendingTechs = async (req, res) => {
+    try {
+        const pending = await prisma.user.findMany({
+            where: { status: "WAITING_ADMIN" },
+            orderBy: { createdAt: 'asc' } // Los más antiguos primero
+        });
+        res.json(pending);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 // Actualizar estado (Aprobar técnicos)
 const updateStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; // ej. "ACTIVE"
+        const { status } = req.body;
         
+        // Validación básica
+        const allowedStatus = ["ACTIVE", "BANNED", "WAITING_ADMIN"];
+        if (!allowedStatus.includes(status)) {
+            return res.status(400).json({ error: "Estado no permitido" });
+        }
+
         const updated = await prisma.user.update({
             where: { id: Number(id) },
             data: { status }
         });
-        res.json({ message: "Estado actualizado", user: updated });
+        res.json({ message: "Estado actualizado con éxito", user: updated });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -221,6 +239,7 @@ module.exports = {
     changeRole,
     deleteUser,
     getTechUsers,
-    getUserServices, // <-- Agregado
-    getTechProfile   // <-- Agregado
+    getUserServices, 
+    getTechProfile  ,
+    getPendingTechs 
 };

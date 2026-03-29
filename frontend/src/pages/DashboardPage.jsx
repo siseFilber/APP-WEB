@@ -10,7 +10,7 @@ const DashboardPage = () => {
         {/* --- BIENVENIDA ESTILO CLEAN --- */}
         <div className="mb-12 border-b border-gray-100 pb-10">
           <span className="text-[#C2A385] font-black uppercase tracking-[0.4em] text-[10px] mb-3 block italic">
-            Sesión Activa / Forward Vision
+            Sesión Activa / 
           </span>
           <h1 className="text-6xl font-light text-[#333] tracking-tighter leading-none">
             Bienvenido, <span className="font-extrabold text-[#376996]">{user?.name || 'Usuario'}</span>

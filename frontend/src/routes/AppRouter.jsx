@@ -19,9 +19,10 @@ import PanelTecnico from "../pages/PanelTecnico";
 import Nosotros from "../pages/Nosotros";
 import Contacto from "../pages/Contacto";
 import Tecnicos from "../pages/Tecnicos";
+// Importamos la página que faltaba
+import AdminAprobaciones from "../pages/AdminAprobaciones"; 
 
 const AppRouter = () => {
-  // Activamos el centinela de seguridad
   useAuthCheck();
 
   return (
@@ -39,15 +40,22 @@ const AppRouter = () => {
         <Route path="register" element={<RegisterPage />} />
         <Route path="verify-otp" element={<VerifyOTP />} />
 
-        {/* Privadas Generales */}
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="solicitar/:serviceId" element={<SolicitarTicket />} />
-        <Route path="mis-tickets" element={<MisTickets />} />
+        {/* Privadas Generales (Clientes, Techs, Admin) */}
+        <Route element={<ProtectedRoute allowedRoles={['CLIENT', 'TECH', 'ADMIN']} />}>
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="solicitar/:serviceId" element={<SolicitarTicket />} />
+          <Route path="mis-tickets" element={<MisTickets />} />
+        </Route>
 
-        {/* Staff & Admin */}
+        {/* Rutas para Staff Operativo (TECH y ADMIN) */}
         <Route element={<ProtectedRoute allowedRoles={['TECH', 'ADMIN']} />}>
           <Route path="mis-servicios" element={<GestionarServicios />} />
           <Route path="panel-tecnico" element={<PanelTecnico />} />
+        </Route>
+
+        {/* --- NUEVA: Rutas exclusivas de ADMINISTRACIÓN --- */}
+        <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+          <Route path="admin-aprobaciones" element={<AdminAprobaciones />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
