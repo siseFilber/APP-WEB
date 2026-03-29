@@ -41,17 +41,14 @@ export const updateProfileRequest = (data) => client.put("/users/profile", data)
 /**
  * Lista todos los técnicos con status 'ACTIVE'
  */
-export const getTechUsersRequest = () => client.get("/users/tecnicos");
+// 1. Obtener la lista de todos los técnicos (Nivel 1)
+export const getTechUsersRequest = () => client.get('/users/tech/all');
 
-/**
- * Obtiene el perfil detallado de un técnico por su ID
- */
-export const getTechProfileRequest = (id) => client.get(`/users/tecnicos/${id}`);
+// 2. Obtener el perfil de un técnico específico (Nivel 2)
+export const getTechProfileRequest = (id) => client.get(`/users/tech/profile/${id}`);
 
-/**
- * Obtiene la lista de servicios asociados a un técnico específico
- */
-export const getUserServicesRequest = (id) => client.get(`/users/${id}/services`);
+// 3. Obtener los servicios de un técnico (Nivel 3)
+export const getUserServicesRequest = (id) => client.get(`/users/tech/services/${id}`);
 
 
 // --- RUTAS DE ADMINISTRACIÓN (SOLO ADMIN) ---

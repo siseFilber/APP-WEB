@@ -80,7 +80,7 @@ const Navbar = () => {
             </div>
           ) : (
             <Link to="/login" className="px-8 py-2.5 bg-[#376996] hover:bg-[#333] text-white font-black rounded-full text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-blue-900/10 transition-all active:scale-95">
-              Acceso NOC
+              Iniciar Sesion
             </Link>
           )}
         </div>

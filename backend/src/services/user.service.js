@@ -139,11 +139,13 @@ const getTechProfileWithServices = async (id) => {
     });
 };
 
-// Obtener solo la lista de servicios de un usuario específico
+
+// Obtener solo la lista de servicios de un técnico específico
 const getServicesByUserId = async (userId) => {
     return await prisma.service.findMany({
         where: {
-            userId: Number(userId)
+           
+            techId: Number(userId) 
         }
     });
 };

@@ -56,7 +56,7 @@ const Footer = () => {
             <h4 className="text-slate-900 font-black mb-8 uppercase text-[10px] tracking-[0.4em]">Contacto Directo</h4>
             <div className="space-y-4 text-[11px] font-bold text-slate-500">
               <p>📍 Jr. Trujillo Central - Chosica</p>
-              <p>📧 <a href="mailto:soporte@daytech.com" className="text-[#376996] hover:underline">soporte@daytech.com</a></p>
+              <p>📧 <a href="mailto:soporte@daytech.com" className="text-[#376996] hover:underline">soporte@SupportComputer.com</a></p>
               <p>📞 +51 956321457</p>
             </div>
           </div>

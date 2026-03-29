@@ -38,8 +38,8 @@ const Home = () => {
           <div className="animate-in fade-in slide-in-from-left-10 duration-1000">
             <span className="text-[#C2A385] font-black uppercase tracking-[0.5em] text-[10px] mb-6 block">Expertos en Hardware y Software</span>
             <h1 className="text-7xl md:text-9xl font-light tracking-tighter leading-[0.85] mb-8 text-[#333]">
-              DAY <br />
-              <span className="font-extrabold text-[#376996]">TECH</span>
+              Support <br />
+              <span className="font-extrabold text-[#376996]">Computer</span>
             </h1>
             <p className="text-slate-500 text-lg mb-10 max-w-md font-medium leading-relaxed">
               Le devolvemos la vida a tu computadora. Especialistas en reparación, repotenciación y soporte técnico garantizado.

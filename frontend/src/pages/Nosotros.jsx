@@ -17,12 +17,12 @@ const Nosotros = () => {
           {/* --- COLUMNA DE TEXTO (ESTILO MINIMALISTA) --- */}
           <div>
             <header className="mb-12 border-b border-gray-100 pb-8">
-              <span className="text-[#C2A385] font-black uppercase tracking-[0.4em] text-[10px] mb-3 block italic">Sobre DAY Tech</span>
+              <span className="text-[#C2A385] font-black uppercase tracking-[0.4em] text-[10px] mb-3 block italic">Sobre SupportComputer</span>
               <h1 className="text-6xl font-light text-[#333] tracking-tighter leading-none mb-6">
                 Líderes en <span className="font-extrabold text-[#376996]">Soporte Técnico</span>
               </h1>
               <p className="text-slate-500 leading-relaxed text-lg font-medium">
-                En **DAY Tech**, nos dedicamos a centralizar las soluciones de hardware y software de alta calidad. 
+                En **SupportComputer**, nos dedicamos a centralizar las soluciones de hardware y software de alta calidad. 
                 Nacimos para conectar a usuarios con la mejor tecnología, garantizando que cada computadora, ya sea de hogar o de oficina, funcione a su máxima capacidad con eficiencia y rapidez.
               </p>
             </header>
