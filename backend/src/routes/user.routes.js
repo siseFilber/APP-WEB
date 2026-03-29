@@ -13,16 +13,9 @@ router.post('/login', userController.login);
 
 // --- RUTAS PÚBLICAS (Visualización de Staff para Clientes) ---
 // Estas no llevan token para que cualquier visitante vea a los técnicos
-// --- RUTAS DE STAFF (Sugerido para evitar bloqueos y errores) ---
-
-// 1. Lista de todos los técnicos
-router.get('/tech/all', userController.getTechUsers); 
-
-// 2. Perfil detallado de un técnico
-router.get('/tech/profile/:id', userController.getTechProfile); 
-
-// 3. Solo los servicios de ese técnico
-router.get('/tech/services/:id', userController.getUserServices);
+router.get('/tech', userController.getTechUsers);
+router.get('/tech/:id', userController.getTechProfile); // Perfil completo con servicios
+router.get('/:id/services', userController.getUserServices); // Solo la lista de servicios
 
 // --- RUTAS PRIVADAS (Perfil del usuario logueado) ---
 router.get('/profile', validateToken, userController.getProfile);
