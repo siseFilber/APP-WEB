@@ -7,29 +7,35 @@ const { checkRole } = require('../middlewares/role.middleware');
 
 // --- RUTAS PÚBLICAS (Autenticación) ---
 router.post('/register', validateRegister, userController.registerUser);
+router.post('/resend-otp', userController.resendOTP);
 router.post('/verify-otp', userController.verifyOTP);
 router.post('/login', userController.login);
 
-// --- RUTAS PÚBLICAS (Visualización para Clientes) ---
+// --- RUTAS PÚBLICAS (Visualización de Staff para Clientes) ---
+// Estas no llevan token para que cualquier visitante vea a los técnicos
+// --- RUTAS DE STAFF (Sugerido para evitar bloqueos y errores) ---
+
+// 1. Lista de todos los técnicos
 router.get('/tech/all', userController.getTechUsers); 
+
+// 2. Perfil detallado de un técnico
 router.get('/tech/profile/:id', userController.getTechProfile); 
+
+// 3. Solo los servicios de ese técnico
 router.get('/tech/services/:id', userController.getUserServices);
 
-// --- RUTAS PRIVADAS (Perfil y Mis Servicios) ---
+// --- RUTAS PRIVADAS (Perfil del usuario logueado) ---
 router.get('/profile', validateToken, userController.getProfile);
 router.put('/profile', validateToken, userController.updateProfile);
 
-// SOLUCIÓN AL ERROR 500: Esta ruta permite al técnico ver sus propios servicios usando su Token
-router.get('/my-services', validateToken, userController.getMyServices); 
-
 // --- RUTAS DE ADMINISTRACIÓN (Solo ADMIN) ---
-// Obtener lista de técnicos que esperan aprobación
-router.get('/admin/pending', validateToken, checkRole(['ADMIN']), userController.getPendingTechs);
+// Usamos validateToken y checkRole para asegurar que nadie más entre
+router.get('/', validateToken, checkRole(['ADMIN']), userController.getAllUsers);
 
-// Gestión total de usuarios
-router.get('/', validateToken, checkRole(['ADMIN']), userController.getUsers);
+// Detalle, Status, Rol y Delete
 router.get('/:id', validateToken, checkRole(['ADMIN']), userController.getUserDetail);
 router.patch('/:id/status', validateToken, checkRole(['ADMIN']), userController.updateStatus);
+router.patch('/:id/role', validateToken, checkRole(['ADMIN']), userController.changeRole);
 router.delete('/:id', validateToken, checkRole(['ADMIN']), userController.deleteUser);
 
 module.exports = router;
