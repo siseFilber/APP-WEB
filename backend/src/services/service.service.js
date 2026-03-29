@@ -1,11 +1,13 @@
 const { prisma } = require('../config/db');
 
+// Obtener todos los servicios con su técnico
 const getAllServices = async () => {
     return await prisma.service.findMany({
         include: { technician: { select: { id: true, name: true, email: true } } }
     });
 };
 
+// Obtener un servicio específico
 const getServiceById = async (id) => {
     return await prisma.service.findUnique({
         where: { id: Number(id) },
@@ -13,12 +15,14 @@ const getServiceById = async (id) => {
     });
 };
 
+// Obtener servicios de un técnico (Usado para 'Mis Servicios')
 const getServicesByTech = async (techId) => {
     return await prisma.service.findMany({
         where: { techId: Number(techId) }
     });
 };
 
+// Crear nuevo servicio
 const createService = async (techId, data) => {
     return await prisma.service.create({
         data: {
@@ -30,6 +34,7 @@ const createService = async (techId, data) => {
     });
 };
 
+// Actualizar servicio existente
 const updateService = async (id, data) => {
     return await prisma.service.update({
         where: { id: Number(id) },
@@ -41,12 +46,14 @@ const updateService = async (id, data) => {
     });
 };
 
+// Eliminar servicio
 const deleteService = async (id) => {
     return await prisma.service.delete({
         where: { id: Number(id) }
     });
 };
 
+// Listar técnicos (Para asignaciones de admin)
 const getTechUsersService = async () => {
     return await prisma.user.findMany({
         where: { role: 'TECH' },

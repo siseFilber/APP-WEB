@@ -51,9 +51,7 @@ const Navbar = () => {
               <Link to="/admin-aprobaciones" className="px-5 py-2 bg-[#F2E8CF] text-[#333] rounded-full hover:bg-[#376996] hover:text-white transition-all border border-[#C2A385] shadow-sm">
                 Aprobar Staff
               </Link>
-              <Link to="/panel-tecnico" className="px-5 py-2 bg-slate-800 text-white rounded-full hover:bg-[#333] transition-all shadow-sm">
-                Monitor NOC
-              </Link>
+            
             </div>
           )}
         </div>

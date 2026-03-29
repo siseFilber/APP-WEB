@@ -4,14 +4,23 @@ const serviceController = require('../controllers/service.controller');
 const { validateToken } = require('../middlewares/auth.middleware');
 const { checkRole } = require('../middlewares/role.middleware');
 
-// Rutas Públicas
+// --- 1. RUTAS PÚBLICAS (Catálogo) ---
+// Obtener todos los servicios para la grilla principal
 router.get('/', serviceController.getServices);
-router.get('/tecnicos', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.getTechUsers);
-router.get('/:id', serviceController.getServiceById); // IMPORTANTE: debajo de /tecnicos
 
-// Rutas Protegidas
-router.get('/my-services', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.getMyServices);
-router.post('/', validateToken, checkRole(['TECH', 'ADMIN', 'CLIENT']), serviceController.addService);
+// --- 2. RUTAS PRIVADAS / ESPECÍFICAS (Fijas primero) ---
+// Importante: /my-services y /tecnicos DEBEN ir antes de /:id
+router.get('/my-services', validateToken, serviceController.getMyServices);
+
+// Lista de técnicos para el Admin/Staff
+router.get('/tecnicos', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.getTechUsers);
+
+// --- 3. RUTAS CON PARÁMETRO (:id) ---
+// Si ponemos esta arriba de /my-services, Express pensará que "my-services" es un ID
+router.get('/:id', serviceController.getServiceById);
+
+// --- 4. OPERACIONES DE ESCRITURA (Protegidas) ---
+router.post('/', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.addService);
 router.put('/:id', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.updateExistingService);
 router.delete('/:id', validateToken, checkRole(['TECH', 'ADMIN']), serviceController.removeService);
 

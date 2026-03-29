@@ -1,6 +1,6 @@
 const serviceService = require('../services/service.service');
 
-// 1. Obtener todos los servicios
+// 1. Catálogo Público
 const getServices = async (req, res) => {
     try {
         const services = await serviceService.getAllServices();
@@ -8,7 +8,7 @@ const getServices = async (req, res) => {
     } catch (error) { res.status(500).json({ error: error.message }); }
 };
 
-// 2. Obtener un servicio por ID (Soluciona el error 404/undefined)
+// 2. Detalle de un servicio
 const getServiceById = async (req, res) => {
     try {
         const service = await serviceService.getServiceById(req.params.id);
@@ -17,15 +17,16 @@ const getServiceById = async (req, res) => {
     } catch (error) { res.status(500).json({ error: error.message }); }
 };
 
-// 3. Ver MIS servicios (Panel del técnico)
+// 3. Mis Servicios (Panel Técnico - Solución Error 500)
 const getMyServices = async (req, res) => {
     try {
+        // req.user.id viene del middleware validateToken
         const services = await serviceService.getServicesByTech(req.user.id);
         res.json(services);
     } catch (error) { res.status(500).json({ error: error.message }); }
 };
 
-// 4. Agregar servicio
+// 4. Crear Servicio
 const addService = async (req, res) => {
     try {
         const newService = await serviceService.createService(req.user.id, req.body);
@@ -33,7 +34,7 @@ const addService = async (req, res) => {
     } catch (error) { res.status(400).json({ error: error.message }); }
 };
 
-// 5. Editar servicio
+// 5. Actualizar Servicio
 const updateExistingService = async (req, res) => {
     try {
         const updated = await serviceService.updateService(req.params.id, req.body);
@@ -41,7 +42,7 @@ const updateExistingService = async (req, res) => {
     } catch (error) { res.status(400).json({ error: error.message }); }
 };
 
-// 6. Eliminar servicio
+// 6. Eliminar Servicio
 const removeService = async (req, res) => {
     try {
         await serviceService.deleteService(req.params.id);
@@ -49,7 +50,7 @@ const removeService = async (req, res) => {
     } catch (error) { res.status(400).json({ error: error.message }); }
 };
 
-// 7. Obtener lista de técnicos
+// 7. Lista de Técnicos (Admin)
 const getTechUsers = async (req, res) => {
     try {
         const techs = await serviceService.getTechUsersService();
@@ -58,6 +59,11 @@ const getTechUsers = async (req, res) => {
 };
 
 module.exports = {
-    getServices, getServiceById, getMyServices, 
-    addService, updateExistingService, removeService, getTechUsers
+    getServices, 
+    getServiceById, 
+    getMyServices, 
+    addService, 
+    updateExistingService, 
+    removeService, 
+    getTechUsers
 };

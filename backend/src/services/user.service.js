@@ -1,98 +1,80 @@
 const { prisma } = require('../config/db');
-const { encrypt } = require('../utils/handlePassword');
+const { encrypt, compare } = require('../utils/handlePassword');
 const { sendVerificationEmail } = require('./mail.service');
 const jwt = require('jsonwebtoken');
-const { compare } = require('../utils/handlePassword');
+
+// --- LÓGICA DE USUARIOS ---
 
 const getAllUsers = async () => {
-    return await prisma.user.findMany();
+    return await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
 };
-const loginService = async (email, password) => {
-    // 1. ¿Existe el usuario?
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) throw new Error("EMAIL_NO_ENCONTRADO");
 
-    // 2. ¿Está verificado? (Regla de negocio SISE)
-    if (!user.isVerified) throw new Error("CUENTA_NO_VERIFICADA");
-
-    // 3. ¿La contraseña es correcta?
-    const isCorrect = await compare(password, user.password);
-    if (!isCorrect) throw new Error("CONTRASEÑA_INCORRECTA");
-
-    // 4. Generar Token (JWT)
-    const token = jwt.sign(
-        { id: user.id, role: user.role },
-        process.env.JWT_SECRET ,
-        { expiresIn: '8h' }
-    );
-
-    return { user, token };
+const getUserByIdService = async (id) => {
+    return await prisma.user.findUnique({ where: { id: Number(id) } });
 };
 
 const registerService = async (userData) => {
     const { dni, email, password, name, role } = userData;
-
-    // 1. Validación de formato de DNI
-    if (!/^\d{8}$/.test(dni)) throw new Error("El DNI debe tener exactamente 8 números");
-
-    // 2. Encriptar contraseña y generar código OTP
     const passwordHash = await encrypt(password);
     const vCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 3. Crear en la base de datos (Postgres/Docker)
-    const user = await prisma.user.create({
+    return await prisma.user.create({
         data: {
-            dni,
-            email,
-            name,
+            dni, email, name,
             password: passwordHash,
             role: (role === "TECH") ? "TECH" : "CLIENT",
             status: "PENDING",
             verificationCode: vCode
         }
     });
-
-    // 4. Envío de correo (Asíncrono)
-    sendVerificationEmail(email, vCode);
-
-    return user;
 };
 
-const resendCodeService = async (email) => {
+const loginService = async (email, password) => {
     const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new Error("EMAIL_NO_ENCONTRADO");
+    if (!user.isVerified) throw new Error("CUENTA_NO_VERIFICADA");
 
-    if (!user) throw new Error("USUARIO_NO_ENCONTRADO");
-    if (user.isVerified) throw new Error("USUARIO_YA_VERIFICADO");
+    const isCorrect = await compare(password, user.password);
+    if (!isCorrect) throw new Error("CONTRASEÑA_INCORRECTA");
 
-    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-    await prisma.user.update({
-        where: { email },
-        data: { verificationCode: newCode }
-    });
-
-    await sendVerificationEmail(email, newCode);
-    return { message: "Código reenviado con éxito" };
+    const token = jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '8h' }
+    );
+    return { user, token };
 };
 
-// Actualizar datos básicos del perfil
+const verifyOTPService = async (email, code) => {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || user.verificationCode !== code) throw new Error("CÓDIGO_INVÁLIDO");
+
+    const nextStatus = (user.role === "TECH") ? "WAITING_ADMIN" : "ACTIVE";
+
+    return await prisma.user.update({
+        where: { email },
+        data: { 
+            isVerified: true, 
+            status: nextStatus, 
+            verificationCode: null 
+        }
+    });
+};
+
 const updateProfileService = async (id, data) => {
-    // Filtramos para que no cambien el password o el rol desde aquí
-    const { name, email, dni } = data;
     return await prisma.user.update({
         where: { id: Number(id) },
-        data: { name, email, dni }
+        data: { name: data.name, email: data.email, dni: data.dni }
     });
 };
 
-// Obtener un usuario por su ID
-const getUserByIdService = async (id) => {
-    return await prisma.user.findUnique({
-        where: { id: Number(id) }
+const updateStatusService = async (id, status) => {
+    return await prisma.user.update({
+        where: { id: Number(id) },
+        data: { status }
     });
 };
 
-// Cambiar el Rol (Solo Admin)
 const changeRoleService = async (id, newRole) => {
     return await prisma.user.update({
         where: { id: Number(id) },
@@ -100,93 +82,41 @@ const changeRoleService = async (id, newRole) => {
     });
 };
 
-// Eliminar usuario
 const deleteUserService = async (id) => {
-    return await prisma.user.delete({
-        where: { id: Number(id) }
-    });
+    return await prisma.user.delete({ where: { id: Number(id) } });
 };
+
+// --- LÓGICA DE TÉCNICOS Y SERVICIOS ---
+
 const getTechUsersService = async () => {
     return await prisma.user.findMany({
-        where: {
-            role: "TECH",
-            status: "ACTIVE", // Solo mostrar técnicos que ya verificaron su cuenta
-        },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            // Agrega aquí otros campos que quieras mostrar, pero NO la password
-        }
-    });
-};
-// Obtener un técnico específico con todos sus servicios incluidos
-const getTechProfileWithServices = async (id) => {
-    return await prisma.user.findUnique({
-        where: { 
-            id: Number(id),
-            role: "TECH" 
-        },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            // Aquí hacemos el "JOIN" con la tabla de servicios
-            services: true 
-        }
+        where: { role: "TECH", status: "ACTIVE" },
+        select: { id: true, name: true, email: true, role: true }
     });
 };
 
-
-// Obtener solo la lista de servicios de un técnico específico
-const getServicesByUserId = async (userId) => {
-    return await prisma.service.findMany({
-        where: {
-           
-            techId: Number(userId) 
-        }
-    });
-};
-
-// Listar técnicos que están esperando aprobación (PENDING)
 const getPendingTechsService = async () => {
     return await prisma.user.findMany({
-        where: {
-            role: "TECH",
-            status: "PENDING"
-        },
-        select: {
-            id: true,
-            dni: true,
-            name: true,
-            email: true,
-            createdAt: true
-        }
+        where: { status: "WAITING_ADMIN" }
     });
 };
 
-// Aprobar a un técnico (Cambiar de PENDING a ACTIVE)
-const approveTechService = async (id) => {
-    return await prisma.user.update({
-        where: { id: Number(id) },
-        data: { status: "ACTIVE" }
+const getServicesByUserId = async (userId) => {
+    return await prisma.service.findMany({
+        where: { techId: Number(userId) }
     });
 };
-// ACTUALIZA TU EXPORTACIÓN AL FINAL DEL SERVICE:
+
+const getTechProfileWithServices = async (id) => {
+    return await prisma.user.findUnique({
+        where: { id: Number(id), role: "TECH" },
+        select: { id: true, name: true, email: true, services: true }
+    });
+};
+
 module.exports = { 
-    getAllUsers, 
-    registerService, 
-    resendCodeService,
-    loginService,
-    updateProfileService,
-    getUserByIdService,
-    changeRoleService,
-    deleteUserService,
-    getTechUsersService,
-    getTechProfileWithServices, // <-- Nueva
-    getServicesByUserId   ,
-    getPendingTechsService, // <-- Nueva: Para el control del Admin
-    approveTechService      // <-- Nueva
+    getAllUsers, getUserByIdService, registerService, loginService,
+    verifyOTPService, updateProfileService, updateStatusService,
+    changeRoleService, deleteUserService, getTechUsersService,
+    getPendingTechsService, getServicesByUserId, getTechProfileWithServices
 };

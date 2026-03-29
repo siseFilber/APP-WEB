@@ -2,73 +2,42 @@ import client from "./client";
 
 // --- RUTAS DE AUTENTICACIÓN ---
 
-/**
- * Registra un nuevo usuario (Cliente o Técnico)
- */
 export const registerRequest = (user) => client.post("/users/register", user);
-
-/**
- * Inicia sesión y obtiene el Token JWT
- */
 export const loginRequest = (user) => client.post("/users/login", user);
-
-/**
- * Verifica la cuenta mediante el código OTP enviado al correo
- */
 export const verifyOTPRequest = (data) => client.post("/users/verify-otp", data);
-
-/**
- * Solicita un nuevo código de verificación
- */
 export const resendOTPRequest = (email) => client.post("/users/resend-otp", { email });
 
+// --- RUTAS DE PERFIL Y GESTIÓN PROPIA (PRIVADAS) ---
 
-// --- RUTAS DE PERFIL (PRIVADAS) ---
-
-/**
- * Obtiene los datos del usuario logueado (usa el token del interceptor)
- */
 export const getProfileRequest = () => client.get("/users/profile");
+export const updateProfileRequest = (data) => client.put("/users/profile", data);
 
 /**
- * Actualiza los datos básicos del perfil (DNI, Nombre, Email)
+ * SOLUCIÓN ERROR 500: Obtiene los servicios del técnico logueado.
+ * El backend usará el token para saber quién es.
  */
-export const updateProfileRequest = (data) => client.put("/users/profile", data);
+export const getMyServicesRequest = () => client.get("/users/my-services");
 
 
 // --- RUTAS DE STAFF (PÚBLICAS PARA EL CATÁLOGO) ---
 
-/**
- * Lista todos los técnicos con status 'ACTIVE'
- */
-// 1. Obtener la lista de todos los técnicos (Nivel 1)
 export const getTechUsersRequest = () => client.get('/users/tech/all');
-
-// 2. Obtener el perfil de un técnico específico (Nivel 2)
 export const getTechProfileRequest = (id) => client.get(`/users/tech/profile/${id}`);
-
-// 3. Obtener los servicios de un técnico (Nivel 3)
 export const getUserServicesRequest = (id) => client.get(`/users/tech/services/${id}`);
 
 
 // --- RUTAS DE ADMINISTRACIÓN (SOLO ADMIN) ---
 
 /**
- * Obtiene la lista completa de usuarios del sistema
+ * Obtiene técnicos que ya verificaron correo pero esperan aprobación (WAITING_ADMIN)
+ */
+export const getPendingTechsRequest = () => client.get("/users/admin/pending");
+
+/**
+ * Obtiene la lista completa de usuarios (Para gestión general)
  */
 export const getAllUsersRequest = () => client.get("/users");
 
-/**
- * Actualiza el rol de un usuario (Ej: de CLIENT a TECH)
- */
 export const changeRoleRequest = (id, role) => client.patch(`/users/${id}/role`, { role });
-
-/**
- * Actualiza el estado de un usuario (Ej: ACTIVE, PENDING, BANNED)
- */
 export const updateStatusRequest = (id, status) => client.patch(`/users/${id}/status`, { status });
-
-/**
- * Elimina un usuario de la base de datos
- */
 export const deleteUserRequest = (id) => client.delete(`/users/${id}`);
